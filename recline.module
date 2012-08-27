@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Integrates Recline.js visualization tools.
+ */
+
+module_load_include('inc', 'recline', 'recline.field');
+
+/**
+ * Implements hook_theme().
+ */
+function recline_theme() {
+  return array(
+    'recline_default_formatter' => array(
+      'variables' => array('item' => NULL),
+      'file' => 'recline.field.inc',
+    ),
+    'recline_widget' => array(
+      'render element' => 'element',
+      'file' => 'recline.field.inc',
+    ),
+  );
+}
+
+function _recline_library_path() {
+  if (module_exists('libraries')) {
+    $library_path = libraries_get_path('scorm_cloud');
+  }
+  else {
+    $library_path = 'sites/all/libraries/scorm_cloud';
+  }
+  return $library_path;
+}
+
