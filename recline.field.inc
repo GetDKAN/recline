@@ -120,6 +120,14 @@ function recline_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     // Add all extra functionality provided by the recline widget.
     $elements[$delta]['#process'][] = 'recline_field_widget_process';
     $elements[$delta]['#default_value'] = !empty($items[$delta]) ? $items[$delta] : array();
+    // This is a work-around because I couldn't figure out how to make "Recline
+    // Views" a fieldset without errors.
+    $elements[$delta]['file_description'] = array(
+      '#type' => 'item',
+      '#markup' => $elements[$delta]['#description'],
+      '#weight' => -2,
+    );
+    unset($elements[$delta]['#description']);
   }
 
   return $elements;
