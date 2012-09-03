@@ -17,7 +17,7 @@ function recline_field_info() {
         'uri_scheme' => variable_get('file_default_scheme', 'public'),
       ),
      'instance_settings' => array(
-       'file_extensions' => 'csv',
+       'file_extensions' => 'csv, xml',
        'file_directory' => '',
        'max_filesize' => '',
        'title_field' => 0,
@@ -284,8 +284,23 @@ function theme_recline_default_formatter($variables) {
     $link_text = $file->description;
     $options['attributes']['title'] = check_plain($file['filename']);
   }
+  drupal_add_library('system', 'ui.sortable');
+  $recline = libraries_load('recline');
+  $module_path = drupal_get_path('module', 'recline');
+  drupal_add_js($module_path . '/recline.app.js');
+  drupal_add_css($module_path . '/recline.css');
+  $file_path = file_create_url($variables['item']['uri']);
+  $settings['recline'] = array(
+    'file' => $file_path,
+    'grid' => (int)$variables['item']['grid'],
+    'graph' => (int)$variables['item']['graph'],
+    'map' => (int)$variables['item']['map'],
+    'timeline' => (int)$variables['item']['timeline'],
+    'transform' => (int)$variables['item']['transform'],
+  );
+  drupal_add_js($settings, 'setting');
 
-  return '<span class="file">' . $icon . ' ' . l($link_text, $url, $options) . '</span>';
+  return '<span class="data-explorer-here"></span>';
 }
 
 /**
