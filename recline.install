@@ -84,7 +84,7 @@ function recline_uninstall() {
  * Checks wether Recline.js library exists or not.
  */
 function _recline_requirements_installed($path) {
-  if (file_exists($path . '/recline.js')) {
+  if (file_exists($path . '/dist/recline.js')) {
     return TRUE;
   }
   return FALSE;
