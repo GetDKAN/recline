@@ -135,9 +135,6 @@ function recline_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
 /**
  * Process callback to remove one level of parentage
- *
- * poutine_maker_ignore_parent() causes the form values to be 'flattened' before being saved into
- * the database table.
  */
 function recline_field_widget_form_process($form, &$form_state, $complete) {
   return $form;
@@ -300,7 +297,8 @@ function theme_recline_default_formatter($variables) {
   );
   drupal_add_js($settings, 'setting');
 
-  return '<span class="data-explorer-here"></span>';
+  $file = l('Download', $url, $options);
+  return '<div class="download">' . $file . '</div><span class="data-explorer-here"></span>';
 }
 
 /**
