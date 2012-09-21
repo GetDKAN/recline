@@ -25,7 +25,7 @@ function recline_requirements($phase) {
       'title' => t('Recline library'),
       'value' => t('Not Found'),
       'severity' => REQUIREMENT_ERROR,
-      'description' => t('You need to download !recline and extract the entire contents of the archive into the %path folder of your server.', array('!recline' => l(t('Recline.js'), 'https://github.com/okfn/recline'), '%path' => 'sites/all/libraries/recline')),
+      'description' => t('You need to download this zip file: !recline and extract the entire contents of the archive into the %path folder of your server.', array('!recline' => l(t('Recline.js'), 'https://github.com/acouch/recline/zipball/master'), '%path' => 'sites/all/libraries/recline')),
       );
     }
     return $requirements;

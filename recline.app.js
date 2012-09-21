@@ -108,7 +108,6 @@
       }
       );
     }
-    console.log(transform);
 
     window.dataExplorer = new recline.View.MultiView({
       model: dataset,

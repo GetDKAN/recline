@@ -6,7 +6,7 @@ contents using Relcine.js
 INSTALLATION
 ------------
 
-1) Download the Reline.js library from https://github.com/okfn/recline
-and install in 'sites/all/libraries/'.
+1) Download the Reline.js library from https://github.com/acouch/recline/zipball/master
+(zip file) and install in 'sites/all/libraries/'.
 
 2) Enable recline module.
