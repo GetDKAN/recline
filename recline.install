@@ -28,8 +28,8 @@ function recline_requirements($phase) {
       'description' => t('You need to download this zip file: !recline and extract the entire contents of the archive into the %path folder of your server.', array('!recline' => l(t('Recline.js'), 'https://github.com/acouch/recline/zipball/master'), '%path' => 'sites/all/libraries/recline')),
       );
     }
-    return $requirements;
   }
+  return $requirements;
 }
 
 /**
