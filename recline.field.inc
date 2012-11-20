@@ -81,64 +81,98 @@ function recline_field_instance_settings_form($field, $instance) {
  */
 function recline_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
 
-  $fieldset_info = element_info('fieldset');
-  $process = array_merge($fieldset_info['#process'], array('recline_field_widget_form_process'));
+  $defaults = array(
+    'fid' => 0,
+    'display' => !empty($field['settings']['display_default']),
+    'description' => '',
+  );
 
-  // Add display_field setting to field because file_field_widget_form() assumes it is set.
-  $field['settings']['display_field'] = 0;
-  // Have a separate fieldset for non-meat toppings
+  // Load the items for form rebuilds from the field state as they might not be
+  // in $form_state['values'] because of validation limitations. Also, they are
+  // only passed in as $items when editing existing entities.
+  $field_state = field_form_get_state($element['#field_parents'], $field['field_name'], $langcode, $form_state);
+  if (isset($field_state['items'])) {
+    $items = $field_state['items'];
+  }
 
+  // Essentially we use the managed_file type, extended with some enhancements.
+  $element_info = element_info('managed_file');
+  $element += array(
+    '#type' => 'managed_file',
+    '#upload_location' => file_field_widget_uri($field, $instance),
+    '#upload_validators' => file_field_widget_upload_validators($field, $instance),
+    '#value_callback' => 'file_field_widget_value',
+    '#process' => array_merge($element_info['#process'], array('file_field_widget_process')),
+    '#progress_indicator' => $instance['widget']['settings']['progress_indicator'],
+    // Allows this field to return an array instead of a single value.
+    '#extended' => TRUE,
+  );
+
+  if ($field['cardinality'] == 1) {
+    // Set the default value.
+    $element['#default_value'] = !empty($items) ? $items[0] : $defaults;
+    // If there's only one field, return it as delta 0.
+    if (empty($element['#default_value']['fid'])) {
+      $element['#description'] = theme('file_upload_help', array('description' => $element['#description'], 'upload_validators' => $element['#upload_validators']));
+    }
+    $elements = array($element);
+  }
+  else {
+    // If there are multiple values, add an element for each existing one.
+    foreach ($items as $item) {
+      $elements[$delta] = $element;
+      $elements[$delta]['#default_value'] = $item;
+      $elements[$delta]['#weight'] = $delta;
+      $delta++;
+    }
+    // And then add one more empty row for new uploads except when this is a
+    // programmed form as it is not necessary.
+    if (($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED || $delta < $field['cardinality']) && empty($form_state['programmed'])) {
+      $elements[$delta] = $element;
+      $elements[$delta]['#default_value'] = $defaults;
+      $elements[$delta]['#weight'] = $delta;
+      $elements[$delta]['#required'] = ($element['#required'] && $delta == 0);
+    }
+    // The group of elements all-together need some extra functionality
+    // after building up the full list (like draggable table rows).
+    $elements['#file_upload_delta'] = $delta;
+    $elements['#theme'] = 'file_widget_multiple';
+    $elements['#theme_wrappers'] = array('fieldset');
+    $elements['#process'] = array('file_field_widget_process_multiple');
+    $elements['#title'] = $element['#title'];
+    $elements['#description'] = $element['#description'];
+    $elements['#field_name'] = $element['#field_name'];
+    $elements['#language'] = $element['#language'];
+    $elements['#display_field'] = $field['settings']['display_field'];
+
+    // Add some properties that will eventually be added to the file upload
+    // field. These are added here so that they may be referenced easily through
+    // a hook_form_alter().
+    $elements['#file_upload_title'] = t('Add a new file');
+    $elements['#file_upload_description'] = theme('file_upload_help', array('description' => '', 'upload_validators' => $elements[0]['#upload_validators']));
+  }
+  $elements[$delta]['view'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Recline Views'),
+    '#description' => t('These are views (as in MVC, not Drupal Views module) made available from Recline.js.'),
+  );
+
+  // Add option for which views are exposed.
   foreach (recline_view_options() as $view => $label) {
-    $element[$view] = array(
+    $elements[$delta]['view'][$view] = array(
       '#title' => $label,
       '#type' => 'checkbox',
       '#weight' => 0,
-      '#default_value' => isset($items[$delta][$view]) ? $items[$delta][$view] : '',
+      // This gives us the value if someone clicks on a view and then uploads
+      // a file. We lose any new values if someone removes the file. We
+      // could fix this by writing our own insert function.
+      '#default_value' => isset($elements[$delta]['#default_value']['view'][$view]) ? $elements[$delta]['#default_value']['view'][$view] : $elements[$delta]['#entity']->field_upload[$elements[$delta]['#entity']->language][$delta][$view],
     );
-  }
-
-  $element['title'] = array(
-    '#type' => 'item',
-    '#title' => t('Recline Views'),
-    '#weight' => -1,
-  );
-  $element['description'] = array(
-    '#type' => 'item',
-    '#markup' => t('These are views (as in MVC, not Drupal Views module) made available from Recline.js.'),
-    '#weight' => 2,
-  );
-
-  $elements = file_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element);
-
-  foreach (element_children($elements) as $delta) {
-    // If not using custom extension validation, ensure this is an image.
-    $supported_extensions = array('csv');
-    $extensions = isset($elements[$delta]['#upload_validators']['file_validate_extensions'][0]) ? $elements[$delta]['#upload_validators']['file_validate_extensions'][0] : implode(' ', $supported_extensions);
-    $extensions = array_intersect(explode(' ', $extensions), $supported_extensions);
-    $elements[$delta]['#upload_validators']['file_validate_extensions'][0] = implode(' ', $extensions);
-
-    // Add all extra functionality provided by the recline widget.
-    $elements[$delta]['#process'][] = 'recline_field_widget_process';
-    $elements[$delta]['#default_value'] = !empty($items[$delta]) ? $items[$delta] : array();
-    // This is a work-around because I couldn't figure out how to make "Recline
-    // Views" a fieldset without errors.
-    $elements[$delta]['file_description'] = array(
-      '#type' => 'item',
-      '#markup' => $elements[$delta]['#description'],
-      '#weight' => -2,
-    );
-    unset($elements[$delta]['#description']);
   }
 
   return $elements;
 }
 
-/**
- * Process callback to remove one level of parentage
- */
-function recline_field_widget_form_process($form, &$form_state, $complete) {
-  return $form;
-}
 /**
  * Implements hook_field_load().
  */
@@ -156,8 +190,14 @@ function recline_field_is_empty($item, $field) {
 /**
  * Implements hook_field_presave().
  */
-
 function recline_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  // In the field definition we've put the views in their own fieldset. Here we
+  // put them back into the same level as the rest of the results.
+  foreach ($items as $delta => $item) {
+    foreach ($item['view'] as $view_name => $view_value) {
+      $items[$delta][$view_name] = $view_value;
+    }
+  }
   file_field_presave($entity_type, $entity, $field, $instance, $langcode, $items);
 }
 
@@ -180,55 +220,6 @@ function recline_field_update($entity_type, $entity, $field, $instance, $langcod
  */
 function recline_field_delete($entity_type, $entity, $field, $instance, $langcode, &$items) {
   file_field_delete($entity_type, $entity, $field, $instance, $langcode, $items);
-}
-
-/**
- * Process the course file type element before displaying the field.
- */
-function recline_field_widget_process($element, &$form_state, $form) {
-
-  $instance = field_widget_instance($element, $form_state);
-
-  $settings = $instance['settings'];
-  $widget_settings = $instance['widget']['settings'];
-
-  // Getting the item value of element.
-  $item = $element['#value'];
-
-  // Getting the delta of element.
-  $delta = $element['#delta'];
-
-  // Getting the delta of element.
-  $item['fid'] = $element['fid']['#value'];
-
-  $element['#theme'] = 'recline_widget';
-  $element['remove_button']['#submit'] = array('recline_file_managed_file_submit');
-
-  return $element;
-}
-
-/**
- * Form submission handler for remove buttons of recline fiile elements.
- *
- * @see file_managed_file_process()
- */
-function recline_file_managed_file_submit($form, &$form_state) {
-  // Determine whether it was the upload or the remove button that was clicked,
-  // and set $element to the managed_file element that contains that button.
-  $parents = $form_state['triggering_element']['#array_parents'];
-  $button_key = array_pop($parents);
-  $element = drupal_array_get_nested_value($form, $parents);
-
-  if ($button_key == 'remove_button') {
-    if ($element['#file']) {
-      file_delete($element['#file']);
-    }
-    $values_element = $element['#extended'] ? $element['fid'] : $element;
-    form_set_value($values_element, NULL, $form_state);
-    drupal_array_set_nested_value($form_state['input'], $values_element['#parents'], NULL);
-  }
-
-  $form_state['rebuild'] = TRUE;
 }
 
 /**
