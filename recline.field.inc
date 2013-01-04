@@ -156,17 +156,32 @@ function recline_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     '#title' => t('Recline Views'),
     '#description' => t('These are views (as in MVC, not Drupal Views module) made available from Recline.js.'),
   );
-
   // Add option for which views are exposed.
   foreach (recline_view_options() as $view => $label) {
+    // This gives us the value if someone clicks on a view and then uploads
+    // a file. We lose any new values if someone removes the file. We
+    // could fix this by writing our own insert function.
+
+    // If file is already uploaded.
+    if (isset($elements[$delta]['#default_value'][$view])) {
+      $default_value = $elements[$delta]['#default_value'][$view];
+    }
+    // If file is already uploaded, but removed.
+    elseif (isset($element['#entity']->{$element['#field_name']})) {
+      $default_value = $element['#entity']->{$element['#field_name']}[$element['#entity']->language][$delta][$view];
+    }
+    // If selections are made, then file is uploaded.
+    elseif (isset($elements[$delta]['#default_value']['view'][$view])) {
+      $default_value = $elements[$delta]['#default_value']['view'][$view];
+    }
+    else {
+      $default_value = '';
+    }
     $elements[$delta]['view'][$view] = array(
       '#title' => $label,
       '#type' => 'checkbox',
       '#weight' => 0,
-      // This gives us the value if someone clicks on a view and then uploads
-      // a file. We lose any new values if someone removes the file. We
-      // could fix this by writing our own insert function.
-      '#default_value' => isset($elements[$delta]['#default_value']['view'][$view]) ? $elements[$delta]['#default_value']['view'][$view] : $elements[$delta]['#entity']->field_upload[$elements[$delta]['#entity']->language][$delta][$view],
+      '#default_value' => $default_value,
     );
   }
 
