@@ -209,8 +209,10 @@ function recline_field_presave($entity_type, $entity, $field, $instance, $langco
   // In the field definition we've put the views in their own fieldset. Here we
   // put them back into the same level as the rest of the results.
   foreach ($items as $delta => $item) {
-    foreach ($item['view'] as $view_name => $view_value) {
-      $items[$delta][$view_name] = $view_value;
+    if (isset($item['view'])) {
+      foreach ($item['view'] as $view_name => $view_value) {
+        $items[$delta][$view_name] = $view_value;
+      }
     }
   }
   file_field_presave($entity_type, $entity, $field, $instance, $langcode, $items);
