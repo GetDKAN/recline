@@ -54,7 +54,6 @@ function recline_field_schema($field) {
   foreach (recline_view_options() as $view => $label) {
     $columns[$view] = array(
       'type' => 'int',
-      'length' => 1,
       'not null' => FALSE,
     );
   }
