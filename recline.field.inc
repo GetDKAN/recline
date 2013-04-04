@@ -300,13 +300,11 @@ function theme_recline_default_formatter($variables) {
     'grid' => (int)$variables['item']['grid'],
     'graph' => (int)$variables['item']['graph'],
     'map' => (int)$variables['item']['map'],
-    'timeline' => (int)$variables['item']['timeline'],
-    'transform' => (int)$variables['item']['transform'],
   );
   drupal_add_js($settings, 'setting');
 
   $file = l('Download', $url, $options);
-  return '<div class="download">' . $file . '</div><span class="data-explorer-here"></span>';
+  return '<div class="download">' . $file . '</div><span class="data-explorer"></span>';
 }
 
 /**
@@ -338,8 +336,6 @@ function recline_view_options() {
     'grid' => t('Grid'),
     'graph' => t('Graph'),
     'map' => t('Map'),
-    'timeline' => t('Timeline'),
-    'transform' => t('Transform'),
   );
 }
 
