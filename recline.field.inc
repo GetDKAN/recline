@@ -289,11 +289,13 @@ function theme_recline_default_formatter($variables) {
     $link_text = $file->description;
     $options['attributes']['title'] = check_plain($file['filename']);
   }
-  $dkan = FALSE;
+  $dkan = $table = FALSE;
   // See if datastore is loaded, if so, prepare recline to view from it.
   if (module_exists('dkan_datastore_api') && module_exists('feeds_flatstore_processor') && function_exists('dkan_datastore_api_get_feeds_source')) {
     $source_id = dkan_datastore_api_get_feeds_source($variables['item']['entity']->nid);
-    $dkan = feeds_flatstore_processor_table_name($source_id, $variables['item']['entity']->nid);
+    if ($table = feeds_flatstore_processor_table_name($source_id, $variables['item']['entity']->nid) && db_table_exists($table)) {
+      $dkan = $table;
+    }
   }
   if (isset($variables['item']['grid'])) {
     if ($variables['item']['grid'] || $variables['item']['graph'] || $variables['item']['map']) {
@@ -335,6 +337,9 @@ function theme_recline_default_formatter($variables) {
     );
     drupal_add_js($settings, 'setting');
   }
+  // Necessary to fix https://github.com/mapbox/mapbox.js/issues/339
+  $leaflet_imgs = $recline['library path'] . '/vendor/leaflet/0.4.4/images';
+  drupal_add_js('L.Icon.Default.imagePath = "/' . $leaflet_imgs . '"', 'inline');
 
   $file = l(t('Download'), $url, $options);
   return '<div class="download">' . $file . '</div><span class="data-explorer"></span>';

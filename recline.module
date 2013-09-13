@@ -72,7 +72,6 @@ function recline_libraries_info() {
         // TODO: Make option for individual downloads.
         'vendor/underscore/1.4.4/underscore.js',
         'vendor/backbone/1.0.0/backbone.js',
-        'vendor/flotr2/flotr2.js',
         'vendor/mustache/0.5.0-dev/mustache.js',
         'vendor/bootstrap/2.0.2/bootstrap.js',
         'vendor/leaflet/0.4.4/leaflet.js',
@@ -80,7 +79,8 @@ function recline_libraries_info() {
         'vendor/slickgrid/2.0.1/jquery.event.drag-2.0.min.js',
         'vendor/slickgrid/2.0.1/slick.grid.min.js',
         'vendor/moment/2.0.0/moment.js',
-        'vendor/timeline/20120520/js/timeline.js',
+        'vendor/timeline/js/timeline.js',
+        'vendor/flot/jquery.flot.js',
         'dist/recline.js',
       ),
     ),
@@ -155,14 +155,17 @@ function recline_libraries_info() {
     'name' => 'Leaflet',
     'vendor url' => 'http://leaflet.cloudmade.com',
     'download url' => 'http://leaflet.cloudmade.com/download.html',
-    'path' => 'leaflet/dist/leaflet.js',
+    'path' => 'Leaflet/dist/leaflet.js',
     'version arguments' => array(
-      'file' => 'leaflet/dist/leaflet.js',
+      'file' => 'Leaflet/dist/leaflet.js',
       'pattern' => '@majorVersion[=:]["\'](\d).+?minorVersion[=:]["\']([\d\.]+)@',
       'lines' => 6,
       'cols' => 100,
     ),
     'files' => array(
+      'js' => array(
+        'leaflet/spec/after.js',
+      ),
       'css' => array(
         'leaflet/dist/leaflet.css',
       ),

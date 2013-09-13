@@ -66,7 +66,14 @@
                backend: 'csv',
             });
             dataset.fetch();
-            createExplorer(dataset, state);
+            var views = createExplorer(dataset, state);
+            // The map needs to get redrawn when we are delivering from the ajax
+            // call.
+            $.each(views, function(i, view) {
+              if (view.id == 'map') {
+                view.view.redraw('refresh');
+              }
+            });
           },
           error: function(x, t, m) {
             if (t === "timeout") {
@@ -84,7 +91,7 @@
           backend: 'dataproxy',
         });
         dataset.fetch();
-        createExplorer(dataset, state);
+        var views = createExplorer(dataset, state);
       }
       else {
         $('.data-explorer').append('<div class="messages status">File type ' + fileType + ' not supported for preview.</div>');
@@ -129,13 +136,14 @@
       );
     }
     if (map) {
+      var view = new recline.View.Map({
+          model: dataset
+      });
       views.push(
       {
         id: 'map',
         label: 'Map',
-        view: new recline.View.Map({
-          model: dataset
-        }),
+        view: view,
       }
       );
     }
@@ -146,6 +154,7 @@
       state: state,
       views: views
     });
+    return views;
   }
 
 })(jQuery);
