@@ -61,9 +61,12 @@
           url: file,
           timeout: 1000,
           success: function(data) {
+            // Changes "^M" to new line if "^M" is present with no lines.
+            if (data.indexOf("\r") != -1 && data.indexOf("\n") == -1) {
+              data = data.replace(/(\r)/g, '\n');
+            }
             var dataset = new recline.Model.Dataset({
-               data: data,
-               backend: 'csv',
+               records: recline.Backend.CSV.parseCSV(data),
             });
             dataset.fetch();
             var views = createExplorer(dataset, state);
@@ -136,14 +139,13 @@
       );
     }
     if (map) {
-      var view = new recline.View.Map({
-          model: dataset
-      });
       views.push(
       {
         id: 'map',
         label: 'Map',
-        view: view,
+        view: new recline.View.Map({
+          model: dataset
+        }),
       }
       );
     }
@@ -156,5 +158,4 @@
     });
     return views;
   }
-
 })(jQuery);
