@@ -273,11 +273,15 @@ function theme_recline_default_formatter($variables) {
 
   $icon = '';
 
+  $format = recline_get_data_type($file['filemime']);
+
   // Set options as per anchor format described at
   // http://microformats.org/wiki/file-format-examples
   $options = array(
     'attributes' => array(
       'type' => $file['filemime'] . '; length=' . $file['filesize'],
+      'data-format' => $format,
+      'class' => array('format-label'),
     ),
   );
 
@@ -347,7 +351,7 @@ function theme_recline_default_formatter($variables) {
     drupal_add_js('L.Icon.Default.imagePath = "/' . $leaflet_imgs . '"', 'inline');
   }
 
-  $file = l(t('Download'), $url, $options);
+  $file = l($file['filename'], $url, $options);
   return '<div class="download">' . $file . '</div><span class="data-explorer"></span>';
 }
 
