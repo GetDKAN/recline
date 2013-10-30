@@ -897,3 +897,15 @@ function recline_mime_types() {
     'application/vnd.zzazz.deck+xml' => 'zaz',
 );
 }
+
+/**
+ * Returns array of delimiters.
+ */
+function recline_delimiters() {
+  return array(
+    ',' => ',',
+    ';' => ';',
+    '|' => '|',
+    '+' => '+',
+  );
+}

@@ -168,7 +168,7 @@ function recline_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     }
     // If file is already uploaded, but removed.
     elseif (isset($element['#entity']->{$element['#field_name']}) && $element['#entity']->{$element['#field_name']}) {
-      $default_value = $element['#entity']->{$element['#field_name']}[$element['#entity']->language][$delta][$view];
+      $default_value = $element['#entity']->{$element['#field_name']}[$element['#language']][$delta][$view];
     }
     // If selections are made, then file is uploaded.
     elseif (isset($elements[$delta]['#default_value']['view'][$view])) {
@@ -184,6 +184,17 @@ function recline_field_widget_form(&$form, &$form_state, $field, $instance, $lan
       '#default_value' => $default_value,
     );
   }
+
+  $delimiter = isset($elements[$delta]['#default_value']['delimiter']) ? $elements[$delta]['#default_value']['delimiter'] : FALSE;
+
+  $elements[$delta]['delimiter'] = array(
+    '#title' => 'Delimiter',
+    '#description' => t('Select delimiter for file if applicable.'),
+    '#type' => 'select',
+    '#options' => recline_delimiters(),
+    '#weight' => 1,
+    '#default_value' => $delimiter,
+  );
 
   return $elements;
 }
@@ -315,6 +326,7 @@ function theme_recline_default_formatter($variables) {
       $file_path = file_create_url($variables['item']['uri']);
       $settings['recline'] = array(
         'file' => $file_path,
+        'delimiter' => $variables['item']['delimiter'],
         'grid' => (int) $variables['item']['grid'],
         'graph' => (int) $variables['item']['graph'],
         'map' => (int) $variables['item']['map'],
@@ -336,6 +348,7 @@ function theme_recline_default_formatter($variables) {
     $file_path = file_create_url($variables['item']['uri']);
     $settings['recline'] = array(
       'file' => $file_path,
+      'delimiter' => $variables['item']['delimiter'],
       'uuid' => $uuid,
       'grid' => 1,
       'graph' => 1,
