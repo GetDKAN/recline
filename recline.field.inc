@@ -314,28 +314,31 @@ function theme_recline_default_formatter($variables) {
       }
     }
   }
-  if ((isset($variables['item']['grid']) && $variables['item']['grid']) ||
-    (isset($variables['item']['graph']) && $variables['item']['graph']) ||
-    (isset($variables['item']['map']) && $variables['item']['map'])) {
-    $uuid = isset($variables['item']['entity']->uuid) ? $variables['item']['entity']->uuid : FALSE;
-    drupal_add_library('system', 'ui.sortable');
-    $recline = libraries_load('recline');
-    $module_path = drupal_get_path('module', 'recline');
-    drupal_add_js($module_path . '/backend.ckan_get.js');
-    drupal_add_js($module_path . '/recline.app.js');
-    drupal_add_css($module_path . '/recline.css');
-    $file_path = isset($variables['item']['uri']) ? file_create_url($variables['item']['uri']) : "";
-    $settings['recline'] = array(
-      'file' => $file_path,
-      'delimiter' => $variables['item']['delimiter'],
-      'grid' => (int) $variables['item']['grid'],
-      'graph' => (int) $variables['item']['graph'],
-      'map' => (int) $variables['item']['map'],
-      'uuid' => $uuid,
-      'fileType' => $variables['item']['filemime'],
-      'dkan' => $dkan,
-    );
-    drupal_add_js($settings, 'setting');
+  $recline = '';
+  if (isset($variables['item']['grid']) &&
+    isset($variables['item']['graph']) &&
+    isset($variables['item']['map'])) {
+    if ($variables['item']['map'] || $variables['item']['grid'] || $variables['item']['graph']) {
+      $uuid = isset($variables['item']['entity']->uuid) ? $variables['item']['entity']->uuid : FALSE;
+      drupal_add_library('system', 'ui.sortable');
+      $recline = libraries_load('recline');
+      $module_path = drupal_get_path('module', 'recline');
+      drupal_add_js($module_path . '/backend.ckan_get.js');
+      drupal_add_js($module_path . '/recline.app.js');
+      drupal_add_css($module_path . '/recline.css');
+      $file_path = isset($variables['item']['uri']) ? file_create_url($variables['item']['uri']) : "";
+      $settings['recline'] = array(
+        'file' => $file_path,
+        'delimiter' => $variables['item']['delimiter'],
+        'grid' => (int) $variables['item']['grid'],
+        'graph' => (int) $variables['item']['graph'],
+        'map' => (int) $variables['item']['map'],
+        'uuid' => $uuid,
+        'fileType' => $variables['item']['filemime'],
+        'dkan' => $dkan,
+      );
+      drupal_add_js($settings, 'setting');
+    }
   }
   else {
     $uuid = isset($variables['item']['entity']->uuid) ? $variables['item']['entity']->uuid : FALSE;
@@ -346,9 +349,10 @@ function theme_recline_default_formatter($variables) {
     drupal_add_js($module_path . '/recline.app.js');
     drupal_add_css($module_path . '/recline.css');
     $file_path = isset($variables['item']['uri']) ? file_create_url($variables['item']['uri']) : "";
+    $delimiter = isset($variables['item']['delimiter']) ? $variables['item']['delimiter'] : ",";
     $settings['recline'] = array(
       'file' => $file_path,
-      'delimiter' => $variables['item']['delimiter'],
+      'delimiter' => $delimiter,
       'uuid' => $uuid,
       'grid' => 1,
       'graph' => 1,
