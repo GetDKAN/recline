@@ -6,6 +6,7 @@
 (function ($) {
   Drupal.behaviors.Recline = {
     attach: function (context) {
+      delimiter = Drupal.settings.recline.delimiter;
       file = Drupal.settings.recline.file;
       grid = Drupal.settings.recline.grid;
       graph = Drupal.settings.recline.graph;
@@ -57,6 +58,7 @@
         });
       }
       else if (fileType == 'text/csv') {
+        var options = {delimiter: delimiter};
         $.ajax({
           url: file,
           timeout: 1000,
@@ -66,7 +68,7 @@
               data = data.replace(/(\r)/g, '\n');
             }
             var dataset = new recline.Model.Dataset({
-               records: recline.Backend.CSV.parseCSV(data),
+               records: recline.Backend.CSV.parseCSV(data, options),
             });
             dataset.fetch();
             var views = createExplorer(dataset, state);
