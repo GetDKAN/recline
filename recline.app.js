@@ -63,10 +63,8 @@
           url: file,
           timeout: 1000,
           success: function(data) {
-            // Changes "^M" to new line if "^M" is present with no lines.
-            if (data.indexOf("\r") != -1 && data.indexOf("\n") == -1) {
-              data = data.replace(/(\r)/g, '\n');
-            }
+            // Converts line endings in either format to unix format.
+            data = data.replace(/[\r\n]/g, '\n');
             var dataset = new recline.Model.Dataset({
                records: recline.Backend.CSV.parseCSV(data, options),
             });
