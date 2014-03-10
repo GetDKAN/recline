@@ -184,13 +184,13 @@ function recline_field_widget_form(&$form, &$form_state, $field, $instance, $lan
       '#default_value' => $default_value,
     );
   }
-  $embed_value = $elements[$delta]['#default_value']['embed'] ? $elements[$delta]['#default_value']['embed'] : '';
+  $embed_value = isset($elements[$delta]['#default_value']['embed']) ? $elements[$delta]['#default_value']['embed'] : '';
 
   $elements[$delta]['embed'] = array(
     '#title' => t('Embed'),
     '#description' => t('Provide an embed link?'),
     '#type' => 'checkbox',
-    '#weight' => 0,
+    '#weight' => 5,
     '#default_value' => $embed_value,
   );
 
