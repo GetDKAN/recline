@@ -61,6 +61,7 @@
                 var options = {delimiter: delimiter};
                 $.ajax({
                     url: file,
+                    dataType: "text",
                     timeout: 1000,
                     success: function(data) {
                         // Converts line endings in either format to unix format.
