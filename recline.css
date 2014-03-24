@@ -19,3 +19,9 @@
 .embed-code-wrapper {
   display: none;
 }
+/** Form validation due to https://drupal.org/node/222380 **/
+.form-item input[type="checkbox"].error,
+.form-item input[type="radio"].error {
+  outline: 2px solid red;
+  border: none;
+}

@@ -204,6 +204,9 @@ function recline_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     '#weight' => 1,
     '#default_value' => $delimiter,
   );
+  $elements['#attached']['css'] = array(
+    drupal_get_path('module', 'recline') . '/recline.css',
+  );
 
   return $elements;
 }
@@ -407,7 +410,7 @@ function recline_default_formatter_output($variables) {
       '#markup' => '<div class="download">' . $file . '</div>',
     ),
   );
-  if ($settings['recline']['embed']){
+  if (isset($settings['recline']['embed']) && $settings['recline']['embed']) {
     $output['embed'] = array(
       '#type' => 'markup',
       '#markup' => $embed,
