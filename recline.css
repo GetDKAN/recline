@@ -19,9 +19,31 @@
 .embed-code-wrapper {
   display: none;
 }
-/** Form validation due to https://drupal.org/node/222380 **/
-.form-item input[type="checkbox"].error,
-.form-item input[type="radio"].error {
-  outline: 2px solid red;
-  border: none;
+
+.recline-flot .graph {
+  height: 500px;
+  overflow: hidden;
+}
+
+.recline-flot .legend table {
+  width: auto;
+  margin-bottom: 0;
+}
+
+.recline-flot .legend td {
+  padding: 5px;
+  line-height: 13px;
+}
+
+.recline-flot .graph .alert {
+  width: 450px;
+}
+
+#recline-flot-tooltip {
+  position: absolute;
+  background-color: #FFF !important;
+  color: #000000 !important;
+  opacity: 0.8 !important;
+  border: 1px solid #DDE4FF !important;
+  padding: 5px;
 }
