@@ -978,3 +978,12 @@ function recline_delimiters() {
     '+' => '+',
   );
 }
+
+
+/**
+ * Implements hook_file_download().
+ */
+function recline_file_download($uri, $field_type = 'file') {
+  return file_file_download($uri, 'recline_field');
+}
+

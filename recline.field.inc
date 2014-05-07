@@ -46,6 +46,29 @@ function recline_field_formatter_info() {
 }
 
 /**
+ * Implements hook_field_settings_form().
+ */
+function recline_field_settings_form($field, $instance, $has_data) {
+  $defaults = field_info_field_settings($field['type']);
+  $settings = array_merge($defaults, $field['settings']);
+
+  $scheme_options = array();
+  foreach (file_get_stream_wrappers(STREAM_WRAPPERS_WRITE_VISIBLE) as $scheme => $stream_wrapper) {
+    $scheme_options[$scheme] = $stream_wrapper['name'];
+  }
+
+  $form['uri_scheme'] = array(
+    '#type' => 'radios',
+    '#title' => t('Upload destination'),
+    '#options' => $scheme_options,
+    '#default_value' => $settings['uri_scheme'],
+    '#description' => t('Select where the final files should be stored. Private file storage has significantly more overhead than public files, but allows restricted access to files within this field.'),
+    '#disabled' => $has_data,
+  );
+  return $form;
+}
+
+/**
  * Implements hook_field_widget_info().
  */
 function recline_field_widget_info() {
