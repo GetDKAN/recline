@@ -122,7 +122,7 @@ function recline_libraries_info() {
       'css' => array(
         'css/grid.css',
         'css/slickgrid.css',
-        'css/graph.css',
+        'css/flot.css',
         'css/transform..css',
         'css/map.css',
         'css/multiview.css',
