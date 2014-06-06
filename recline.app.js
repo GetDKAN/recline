@@ -29,7 +29,8 @@
             }
             // Checks if dkan_datastore is installed.
             if (dkan) {
-                var DKAN_API = '/api/action/datastore/search.json';
+                var drupal_base_path = Drupal.settings.basePath;
+                var DKAN_API = drupal_base_path + 'api/action/datastore/search.json';
                 var url = window.location.origin + DKAN_API + '?resource_id=' + uuid;
                 var DkanDatastore = false;
                 var DkanApi = $.ajax({
@@ -39,7 +40,7 @@
                     success: function(data, status) {
                         if ('success' in data && data.success) {
                             var dataset = new recline.Model.Dataset({
-                                endpoint: window.location.origin + '/api',
+                                endpoint: window.location.origin + drupal_base_path + '/api',
                                 url: url,
                                 id: uuid,
                                 backend: 'ckan'
