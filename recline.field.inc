@@ -322,6 +322,24 @@ function recline_field_formatter_view($entity_type, $entity, $field, $instance, 
  */
 function theme_recline_default_formatter($variables) {
   $output = recline_default_formatter_output($variables);
+  
+  if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
+    // List files if item is an archive.
+    $archiver = archiver_get_archiver($variables['item']['uri']);
+    if ($archiver) {
+      $output['ziplist'] = array(
+        '#theme' => 'item_list',
+        '#title' => t('Files in this archive'),
+        '#items' => $archiver->listContents(),
+      );
+    }
+    elseif ($format == 'zip') {
+      $archivers_available = implode(', ', array_keys(archiver_get_info()));
+      drupal_set_message(t('Unable to provide file listing for zip format on this system. Available archiver formats are: %s',
+        array('%s' => $archivers_available)));
+    }
+  }
+  
   return drupal_render($output);
 }
 
