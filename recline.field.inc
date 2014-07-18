@@ -322,14 +322,18 @@ function recline_field_formatter_view($entity_type, $entity, $field, $instance, 
  */
 function theme_recline_default_formatter($variables) {
   $output = recline_default_formatter_output($variables);
-  
+
   if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
     // List files if item is an archive.
     $archiver = archiver_get_archiver($variables['item']['uri']);
     if ($archiver) {
+      $module_path = drupal_get_path('module', 'recline');
+      drupal_add_css($module_path . '/recline.css');
       $output['ziplist'] = array(
         '#theme' => 'item_list',
-        '#title' => t('Files in this archive'),
+        '#prefix' => '<div id="recline-zip-list">',
+        '#suffix' => '</div>',
+        '#title' => t('%number files in this archive', array('%number' => count($archiver->listContents()))),
         '#items' => $archiver->listContents(),
       );
     }
@@ -339,7 +343,7 @@ function theme_recline_default_formatter($variables) {
         array('%s' => $archivers_available)));
     }
   }
-  
+
   return drupal_render($output);
 }
 
