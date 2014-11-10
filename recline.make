@@ -16,4 +16,4 @@ libraries[recline_deeplink][type] = libraries
 libraries[recline_deeplink][download][type] = git
 libraries[recline_deeplink][download][url] = "https://github.com/NuCivic/recline-deeplink.git"
 libraries[recline_deeplink][directory_name] = recline_deeplink
-libraries[recline_deeplink][download][revision] = "3175e9332b5bee893ad2e4c3018b81d1b4cde455"
+libraries[recline_deeplink][download][revision] = "04cd3096e610fb61abcd0020e26635ffaa73b9e0"
