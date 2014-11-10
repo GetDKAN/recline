@@ -267,11 +267,11 @@ function recline_libraries_info() {
     'vendor url' => 'https://github.com/NuCivic/recline-deeplink',
     'download url' => 'https://github.com/NuCivic/recline-deeplink',
     'path' => '',
-    'version arguments' => array(
-      'file' => 'dist/recline.deeplink.min.js',
-      'pattern' => '@v+([0-9][.][0-9])@',
-      'lines' => 10,
-      'cols' => 100,
+    'version' => array(
+      'file' => 'bower.js',
+      'pattern' => '@+([0-9][.][0-9][.][0-9])@',
+      'lines' => 3,
+      'cols' => 14,
     ),
     'files' => array(
       'js' => array(
