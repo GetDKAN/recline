@@ -205,31 +205,30 @@
         return ctx.measureText(biggerLabel).width;
     };
 
-    function resize (plot, box) {
-        $('.recline-flot').css({overflow:'auto'});
-        $('.panel.graph').css({width: box.width + 'px'});
+    function resize (plot) {
+        addCheckbox();
+        var itemWidth = computeWidth(plot, _.pluck(plot.getXAxes()[0].ticks, 'label'));
+        var graph = dataExplorer.pageViews[1];
+        if(!isInverted()){
+            var canvasWidth = Math.min(itemWidth + labelMargin, maxLabelWidth) * plot.getXAxes()[0].ticks.length;
+            var canvasContainerWith = $('.panel.graph').parent().width();
+            if(canvasWidth < canvasContainerWith || !$('#prevent-label-overlapping').is(':checked')){
+                canvasWidth = canvasContainerWith;
+            }
+            $('.panel.graph').width(canvasWidth);
+            $('.recline-flot').css({overflow:'auto'});
+        }else{
+            $('.recline-flot').css({overflow:'hidden'});
+            $('.panel.graph').css({width: '100%'});
+        }
         plot.resize();
         plot.setupGrid();
         plot.draw();
     };
 
     function bindEvents (plot, eventHolder) {
-        var itemWidth = computeWidth(plot, _.pluck(plot.getXAxes()[0].ticks, 'label'));
-        var graph = dataExplorer.pageViews[1];
-        if(!isInverted()){
-            var canvasWidth = Math.min(itemWidth + labelMargin, maxLabelWidth) * plot.getXAxes()[0].ticks.length;
-            var canvasContainerWith = $('.panel.graph').parent().width();
-            if(canvasWidth < canvasContainerWith){
-                canvasWidth = canvasContainerWith - 10;
-            }
-            resize(plot, {width: canvasWidth});
-        }else{
-            $('.recline-flot').css({overflow:'hidden'});
-            $('.panel.graph').css({width: '100%'});
-            plot.resize();
-            plot.setupGrid();
-            plot.draw();
-        }
+        var p = plot || dataExplorer.pageViews[1].view.plot;
+        resize(p);
     };
 
     function processOffset (dataset) {
@@ -271,5 +270,18 @@
         };
     };
 
+    function addCheckbox() {
+        $control = $('#prevent-label-overlapping');
+        if(!$control.length){
+            $form = $('.form-stacked');
+            $checkboxDiv = $('<div class="checkbox"></div>').appendTo($form);
+            $label = $('<label />', { 'for': 'prevent-label-overlapping', text: 'Resize graph to prevent label overlapping' }).appendTo($checkboxDiv);
+            $label.prepend($('<input />', { type: 'checkbox', id: 'prevent-label-overlapping', value: '' }));
+            $control = $('#prevent-label-overlapping');
+            $control.on('change', function(){
+                resize(dataExplorer.pageViews[1].view.plot);
+            });
+        }
+    };
 
 })(jQuery);
