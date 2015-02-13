@@ -33,7 +33,7 @@
                 state['currentView'] = 'timeline';
             }
             // Checks if dkan_datastore is installed.
-            if (dkan || fileType == 'text/csv') {
+            if (dkan || fileType == 'text/csv' || fileType == 'csv') {
                 var drupal_base_path = Drupal.settings.basePath;
                 var DKAN_API = drupal_base_path + 'api/action/datastore/search.json';
                 var url = dkan ? (window.location.origin + DKAN_API + '?resource_id=' + uuid) : file;
