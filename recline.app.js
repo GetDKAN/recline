@@ -214,7 +214,7 @@
         return function(state){
             var iframeOptions = _.clone(options);
             var iframeTmpl = _.template('<iframe width="<%= width %>" height="<%= height %>" src="<%= src %>" frameborder="0"></iframe>');
-            _.extend(iframeOptions, {src: iframeOptions.src + '#' + state.serializedState});
+            _.extend(iframeOptions, {src: iframeOptions.src + '#' + (state.serializedState || '')});
             var html = iframeTmpl(iframeOptions);
             $('.embed-code').text(html);
         };
