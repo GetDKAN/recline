@@ -455,6 +455,7 @@ function recline_default_formatter_output($variables) {
   $recline_deeplink = libraries_load('recline_deeplink');
   $leaflet_markercluster = libraries_load('leaflet_markercluster');
   $deep_diff = libraries_load('deep_diff');
+  $csv = libraries_load('csv');
 
   if (isset($variables['item']['grid']) &&
     isset($variables['item']['graph']) &&

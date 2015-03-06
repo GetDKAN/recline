@@ -323,6 +323,17 @@ function recline_libraries_info() {
       ),
     ),
   );
+  
+  $libraries['csv'] = array(
+    'name' => 'csv',
+    'vendor url' => 'https://github.com/okfn/csv.js',
+    'version' => '0.0.1',
+    'files' => array(
+      'js' => array(
+        'csv.js',
+      ),
+    ),
+  );  
 
   return $libraries;
 }
