@@ -4,7 +4,7 @@ api = 2
 libraries[recline][type] = libraries
 libraries[recline][download][type] = git
 libraries[recline][download][url] = "https://github.com/okfn/recline.git"
-libraries[recline][download][revision] = "abbab59ce581740ae4d2e7619a2503e5c55f49a9"
+libraries[recline][download][revision] = "b5e670f99210dd364c3ee40cce6117a28a72c17e"
 
 libraries[deep_diff][type] = libraries
 libraries[deep_diff][download][type] = git
