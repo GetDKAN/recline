@@ -67,7 +67,7 @@
                             // Converts line endings in either format to unix format.
                             data = data.replace(/(\r\n|\n|\r)/gm,"\n");
                             dataset = new recline.Model.Dataset({
-                                records: recline.Backend.CSV.parse(data, options)
+                                records: recline.Backend.CSV.parseCSV(data, options)
                             });
                             dataset.fetch();
                             views = createExplorer(dataset, state, dataExplorerSettings);
@@ -132,7 +132,7 @@
             views.push(
                 {
                     id: 'grid',
-                    label: 'Grid',
+                    label: Drupal.t('Grid'),
                     view: new recline.View.SlickGrid({
                         model: dataset
                     })
@@ -152,7 +152,7 @@
             views.push(
                 {
                     id: 'graph',
-                    label: 'Graph',
+                    label: Drupal.t('Graph'),
                     view: new recline.View.Graph({
                         model: dataset,
                         state: state
@@ -164,7 +164,7 @@
             views.push(
                 {
                     id: 'map',
-                    label: 'Map',
+                    label: Drupal.t('Map'),
                     view: new recline.View.Map({
                         model: dataset
                     })
@@ -307,7 +307,7 @@
         if(!$control.length){
             $form = $('.form-stacked');
             $checkboxDiv = $('<div class="checkbox"></div>').appendTo($form);
-            $label = $('<label />', { 'for': 'prevent-label-overlapping', text: 'Resize graph to prevent label overlapping' }).appendTo($checkboxDiv);
+            $label = $('<label />', { 'for': 'prevent-label-overlapping', text: Drupal.t('Resize graph to prevent label overlapping') }).appendTo($checkboxDiv);
             $label.prepend($('<input />', { type: 'checkbox', id: 'prevent-label-overlapping', value: '' }));
             $control = $('#prevent-label-overlapping');
             $control.on('change', function(){
