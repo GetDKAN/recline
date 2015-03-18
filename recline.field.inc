@@ -205,7 +205,7 @@ function recline_field_widget_form(&$form, &$form_state, $field, $instance, $lan
   $delimiter = isset($elements[$delta]['#default_value']['delimiter']) ? $elements[$delta]['#default_value']['delimiter'] : FALSE;
 
   $elements[$delta]['delimiter'] = array(
-    '#title' => t('Delimiter'),
+    '#title' => 'Delimiter',
     '#description' => t('Select delimiter for file if applicable.'),
     '#type' => 'select',
     '#options' => recline_delimiters(),
@@ -451,10 +451,19 @@ function recline_default_formatter_output($variables) {
   }
   $recline = '';
 
+  libraries_load('lodash');
+  libraries_load('backbone');
   $recline = libraries_load('recline');
-  $recline_deeplink = libraries_load('recline_deeplink');
-  $leaflet_markercluster = libraries_load('leaflet_markercluster');
-  $deep_diff = libraries_load('deep_diff');
+  libraries_load('csv');
+  libraries_load('mustache');
+  libraries_load('moment');
+  libraries_load('slickgrid');
+  libraries_load('leaflet');
+
+  libraries_load('flot');
+  libraries_load('deep_diff');
+  libraries_load('recline_deeplink');
+  libraries_load('leaflet_markercluster');
 
   if (isset($variables['item']['grid']) &&
     isset($variables['item']['graph']) &&
@@ -466,7 +475,6 @@ function recline_default_formatter_output($variables) {
 
       $module_path = drupal_get_path('module', 'recline');
       drupal_add_js($module_path . '/backend.ckan_get.js');
-      drupal_add_js($module_path . '/encoding.js');
       drupal_add_js($module_path . '/recline.app.js');
       drupal_add_css($module_path . '/recline.css');
       $file_path = isset($variables['item']['uri']) ? file_create_url($variables['item']['uri']) : "";
@@ -492,7 +500,6 @@ function recline_default_formatter_output($variables) {
 
     $module_path = drupal_get_path('module', 'recline');
     drupal_add_js($module_path . '/backend.ckan_get.js');
-    drupal_add_js($module_path . '/encoding.js');
     drupal_add_js($module_path . '/recline.app.js');
     drupal_add_css($module_path . '/recline.css');
     $file_path = isset($variables['item']['uri']) ? file_create_url($variables['item']['uri']) : "";
