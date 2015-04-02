@@ -4,8 +4,8 @@ api = 2
 # RECLINE
 libraries[recline][type] = libraries
 libraries[recline][download][type] = git
-libraries[recline][download][url] = "https://github.com/okfn/recline.git"
-libraries[recline][download][revision] = "b5e670f99210dd364c3ee40cce6117a28a72c17e"
+libraries[recline][download][url] = "https://github.com/NuCivic/recline.js.git"
+libraries[recline][download][revision] = "d2640036dbb08ca3ab1a269b0544c35a41aabe03"
 
 # LODASH
 libraries[lodash][type] = libraries
