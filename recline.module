@@ -21,7 +21,7 @@ function recline_menu() {
     'description' => 'Configurable items for recline module',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('recline_configuration_form'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('access recline configuration'),
   );
   $items['node/%node/recline-embed'] = array(
     'title' => 'Embed',
