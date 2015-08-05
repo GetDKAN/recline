@@ -35,6 +35,18 @@ function recline_menu() {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function recline_permission() {
+  $permissions['access recline configuration'] = array(
+    'title' => t('Configure recline module items.'),
+    'description' => t('Access recline module configuration items.'),
+  );
+
+  return $permissions;
+}
+
+/**
  * Callback for admin/dkan/recline page.
  */
 function recline_configuration_form() {
