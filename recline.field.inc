@@ -285,18 +285,8 @@ function recline_field_formatter_info() {
   $formatters = array(
     'recline_default_formatter' => array(
       'label' => t('Recline.js visualization'),
-      'field types' => array('recline_field', 'file'),
+      'field types' => array('recline_field', 'file', 'link'),
       // TODO: add some settings.
-      'settings' => array(),
-    ),
-    'recline_link_formatter' => array(
-      'label' => t('Recline field link'),
-      'field types' => array('recline_field'),
-      'settings' => array(),
-    ),
-    'recline_url_formatter' => array(
-      'label' => t('Recline field URI'),
-      'field types' => array('recline_field'),
       'settings' => array(),
     ),
   );
@@ -371,6 +361,7 @@ function theme_recline_url_formatter($variables) {
  */
 function theme_recline_default_formatter($variables) {
   $output = recline_default_formatter_output($variables);
+  
   // We should REALLY think about how we want to architecture this. I don't like
   // the case by case thing going on here. We should provide a way of tying file
   // extensions with render functions so people can hook on this field formatter
@@ -496,9 +487,6 @@ function recline_default_formatter_output($variables) {
   else {
     $uuid = isset($variables['item']['entity']->uuid) ? $variables['item']['entity']->uuid : FALSE;
     drupal_add_library('system', 'ui.sortable');
-
-
-
     $module_path = drupal_get_path('module', 'recline');
     drupal_add_js($module_path . '/backend.ckan_get.js');
     drupal_add_js($module_path . '/recline.app.js');
