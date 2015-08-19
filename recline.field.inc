@@ -285,18 +285,8 @@ function recline_field_formatter_info() {
   $formatters = array(
     'recline_default_formatter' => array(
       'label' => t('Recline.js visualization'),
-      'field types' => array('recline_field', 'file'),
+      'field types' => array('recline_field', 'file', 'link_field'),
       // TODO: add some settings.
-      'settings' => array(),
-    ),
-    'recline_link_formatter' => array(
-      'label' => t('Recline field link'),
-      'field types' => array('recline_field'),
-      'settings' => array(),
-    ),
-    'recline_url_formatter' => array(
-      'label' => t('Recline field URI'),
-      'field types' => array('recline_field'),
       'settings' => array(),
     ),
   );
