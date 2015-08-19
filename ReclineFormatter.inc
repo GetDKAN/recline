@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ * Class ReclineFormatter.
+ */
+
+class ReclineFormatter {
+  /**
+   * Returns the type of the resource based on response headers.
+   */
+  public function getType($item) {
+    if (isset($item['uri'])) {
+      $url = $item['uri'];
+    }
+    else {
+      if (isset($item['url'])) {
+        $url = $item['url'];
+      }
+    }
+    // Determine if we have the uri of a file or if it is a link to a file or a
+    // link to an api.
+    if (is_numeric(strpos($url, 'public://'))) {
+      return 'file';
+    }
+    else {
+      $response = drupal_http_request($url);
+      dpm($response, 'formatter response');
+      if ($response->code != '200') {
+        return 'none';
+      }
+      else {
+        $matches = array();
+        if (preg_match('/text\/([a-z]*)/', $response->headers['content-type'], $matches) == 1) {
+          return $matches[1];
+        }
+        else {
+          if (preg_match('/application\/([a-z]*)/', $response->headers['content-type'], $matches) == 1) {
+            return $matches[1];
+          }
+        }
+      }
+    }
+    return 'none';
+  }
+}
