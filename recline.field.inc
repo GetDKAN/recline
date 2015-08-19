@@ -360,12 +360,42 @@ function theme_recline_url_formatter($variables) {
  * @ingroup themeable
  */
 function theme_recline_default_formatter($variables) {
-  $output = recline_default_formatter_output($variables);
+  $recline_formatter = new ReclineFormatter();
+  $type = $recline_formatter->getType($variables['item']);
+
+  switch ($type) {
+  case 'file':
+    $output = recline_default_formatter_output($variables);
+    break;
+
+  case 'csv':
+    $output = recline_default_formatter_output($variables);
+    break;
+
+  case 'xml':
+    // $output = show_pretify_xml();
+    break;
+
+  case 'json':
+    // $output = show_pretify_json();
+    break;
+
+  case 'geojson':
+    // $output = show_geojson_map();
+    break;
+
+  case 'html':
+    $output = recline_format_link_api($variables['item']);
+    break;
+
+  default:
+    dpm('we can\'t show anything.');
+  }
   // We should REALLY think about how we want to architecture this. I don't like
   // the case by case thing going on here. We should provide a way of tying file
   // extensions with render functions so people can hook on this field formatter
   // for an extra set of mime types
-  if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
+  /*if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
     $uri = $variables['item']['uri'];
     if (is_numeric(strpos($uri, 'public://'))) {
       // List files if item is an archive.
@@ -394,8 +424,35 @@ function theme_recline_default_formatter($variables) {
       );
     }
   }
-
+   */
   return drupal_render($output);
+}
+
+/**
+ * Builds output for a link of an api.
+ */
+function recline_format_link_api($item) {
+  return array(
+    'iframe' => array(
+      '#type' => 'html_tag',
+      '#tag' => 'iframe',
+      '#attributes' => array(
+        'name' => $item['title'],
+        'src' => url($item['url']),
+        'height' => 600,
+        'width' => 900,
+        'style' => '',
+      ),
+      '#value' => '',
+    ),
+  );
+}
+
+/**
+ * Prettify json.
+ */
+function recline_prettify_json() {
+  libraries_load('jquery-jsonview');
 }
 
 /**
