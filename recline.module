@@ -382,6 +382,27 @@ function recline_libraries_info() {
     ),
   );
 
+  $libraries['jquery-jsonview'] = array(
+    'name' => 'jQuery JSONView',
+    'vendor url' => 'https://github.com/yesmeck/jquery-jsonview',
+    'download url' => 'https://github.com/yesmeck/jquery-jsonview',
+    'path' => '',
+    'version' => array(
+      'file' => 'bower.json',
+      'pattern' => '@+([0-9][.][0-9][.][0-9])@',
+      'lines' => 4,
+      'cols' => 14,
+    ),
+    'files' => array(
+      'js' => array(
+        'dist/jquery.jsonview.js',
+      ),
+      'css' => array(
+        'dist/jquery.jsonview.css',
+      ),
+    ),
+  );
+
   return $libraries;
 }
 
