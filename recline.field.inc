@@ -365,7 +365,12 @@ function theme_recline_default_formatter($variables) {
 
   switch ($type) {
   case 'file':
-    $output = recline_default_formatter_output($variables);
+    if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
+      $output = recline_format_item_archive($variables['item']['uri']);
+    }
+    else {
+      $output = recline_default_formatter_output($variables);
+    }
     break;
 
   case 'csv':
@@ -390,41 +395,9 @@ function theme_recline_default_formatter($variables) {
 
   default:
     dpm('we can\'t show anything.');
+    $output = recline_format_default_item($variables['item']['title'], $recline_formatter->getUrl($variables['item']));
   }
-  // We should REALLY think about how we want to architecture this. I don't like
-  // the case by case thing going on here. We should provide a way of tying file
-  // extensions with render functions so people can hook on this field formatter
-  // for an extra set of mime types
-  /*if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
-    $uri = $variables['item']['uri'];
-    if (is_numeric(strpos($uri, 'public://'))) {
-      // List files if item is an archive.
-      $archiver = archiver_get_archiver($uri);
-      if ($archiver) {
-        $module_path = drupal_get_path('module', 'recline');
-        drupal_add_css($module_path . '/recline.css');
-        $output['ziplist'] = array(
-          '#theme' => 'item_list',
-          '#prefix' => '<div id="recline-zip-list">',
-          '#suffix' => '</div>',
-          '#title' => t('%number files in this archive', array('%number' => count($archiver->listContents()))),
-          '#items' => $archiver->listContents(),
-        );
-      }
-      elseif ($format == 'zip') {
-        $archivers_available = implode(', ', array_keys(archiver_get_info()));
-        drupal_set_message(t('Unable to provide file listing for zip format on this system. Available archiver formats are: %s',
-          array('%s' => $archivers_available)));
-      }
-    }
-    else {
-      $output['ziplist'] = array(
-        '#theme' => 'item_list',
-        '#title' => t('Unable to provide file listing for remote zip file.'),
-      );
-    }
-  }
-   */
+
   return drupal_render($output);
 }
 
@@ -466,6 +439,45 @@ function recline_prettify_json() {
       '#markup' => '<div id="recline-data-json"></div>',
     ),
   );
+}
+
+/**
+ * Returns link to the resource.
+ */
+function recline_format_default_item($name, $url) {
+  $file = l($name, $url);
+  $output = array(
+    'download' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="download"><p>The preview of this resource is not available but you can find it here:</p>' . $file . '</div>',
+    ),
+  );
+  return $output;
+}
+
+/**
+ * Builds output render array for files if item is an archive.
+ */
+function recline_format_item_archive($uri) {
+  // List files if item is an archive.
+  $archiver = archiver_get_archiver($uri);
+  if ($archiver) {
+    $module_path = drupal_get_path('module', 'recline');
+    drupal_add_css($module_path . '/recline.css');
+    $output['ziplist'] = array(
+      '#theme' => 'item_list',
+      '#prefix' => '<div id="recline-zip-list">',
+      '#suffix' => '</div>',
+      '#title' => t('%number files in this archive', array('%number' => count($archiver->listContents()))),
+      '#items' => $archiver->listContents(),
+    );
+  }
+  elseif ($format == 'zip') {
+    $archivers_available = implode(', ', array_keys(archiver_get_info()));
+    drupal_set_message(t('Unable to provide file listing for zip format on this system. Available archiver formats are: %s',
+      array('%s' => $archivers_available)));
+  }
+  return $output;
 }
 
 /**

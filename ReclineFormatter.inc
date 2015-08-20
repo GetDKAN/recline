@@ -59,4 +59,18 @@ class ReclineFormatter {
     $response = drupal_http_request($url);
     return $response->data;
   }
+
+  /**
+   * Returns url.
+   */
+  public function getUrl($item) {
+    if (isset($item['uri'])) {
+      return $item['uri'];
+    }
+    else {
+      if (isset($item['url'])) {
+        return $item['url'];
+      }
+    }
+  }
 }
