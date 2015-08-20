@@ -43,4 +43,20 @@ class ReclineFormatter {
     }
     return 'none';
   }
+
+  /**
+   * Returns json data from the request.
+   */
+  public function getJsonData($item) {
+    if (isset($item['uri'])) {
+      $url = $item['uri'];
+    }
+    else {
+      if (isset($item['url'])) {
+        $url = $item['url'];
+      }
+    }
+    $response = drupal_http_request($url);
+    return $response->data;
+  }
 }
