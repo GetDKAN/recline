@@ -6,3 +6,4 @@ dependencies[] = libraries
 dependencies[] = file
 dependencies[] = field_ui
 files[] = ReclineFormatter.inc
+scripts[] = jsondataview.js

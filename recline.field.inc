@@ -377,7 +377,7 @@ function theme_recline_default_formatter($variables) {
     break;
 
   case 'json':
-    // $output = show_pretify_json();
+    $output = recline_prettify_json($recline_formatter->getJsonData($variables['item']));
     break;
 
   case 'geojson':
@@ -453,6 +453,19 @@ function recline_format_link_api($item) {
  */
 function recline_prettify_json() {
   libraries_load('jquery-jsonview');
+  $module_path = drupal_get_path('module', 'recline');
+  drupal_add_js(array('recline' => array('data' => $data)), 'setting');
+  drupal_add_js($module_path . '/jsondataview.js');
+  return array(
+    'toggle_btn' => array(
+      '#type' => 'markup',
+      '#markup' => '<a id="toggle-btn" class="embed-link">Toggle view</a>',
+    ),
+    'data_json' => array(
+      '#type' => 'markup',
+      '#markup' => '<div id="recline-data-json"></div>',
+    ),
+  );
 }
 
 /**
