@@ -424,7 +424,7 @@ function recline_format_link_api($item) {
 /**
  * Prettify json.
  */
-function recline_prettify_json() {
+function recline_prettify_json($data) {
   libraries_load('jquery-jsonview');
   $module_path = drupal_get_path('module', 'recline');
   drupal_add_js(array('recline' => array('data' => $data)), 'setting');
