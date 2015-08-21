@@ -365,11 +365,33 @@ function theme_recline_default_formatter($variables) {
 
   switch ($type) {
     case 'file':
-      if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
-        $output = recline_format_item_archive($variables['item']['uri']);
-      }
-      else {
-        $output = recline_default_formatter_output($variables);
+      if (isset($variables['item']['filemime'])) {
+        switch ($variables['item']['filemime']) {
+          case 'application/zip':
+            $output = recline_format_item_archive($variables['item']['uri']);
+            break;
+
+          case 'application/octet-stream':
+            // If it is a geojson file, format it to show the map.
+            if (preg_match('/.*\.geojson/', $variables['item']['uri'], $matches) == 1) {
+              $output = recline_geojson_formatter_output($variables['item']['uri']);
+              if (empty($output)) {
+                $output = recline_default_formatter_output($variables);
+              }
+            }
+            else {
+              $output = recline_default_formatter_output($variables);
+            }
+            break;
+
+          case 'application/json':
+            $url['url'] = file_create_url($variables['item']['uri']);
+            $output = recline_prettify_json($recline_formatter->getJsonData($url));
+            break;
+
+          default:
+            $output = recline_default_formatter_output($variables);
+        }
       }
       break;
 
@@ -381,16 +403,11 @@ function theme_recline_default_formatter($variables) {
       $output = recline_prettify_json($recline_formatter->getJsonData($variables['item']));
       break;
 
-    case 'geojson':
-      // $output = show_geojson_map();
-      break;
-
     case 'html':
       $output = recline_format_link_api($variables['item']);
       break;
 
     default:
-      dpm('we can\'t show anything.');
       if (isset($variables['item']['title'])) {
         $output = recline_format_default_item($variables['item']['title'], $recline_formatter->getUrl($variables['item']));
       }
@@ -459,6 +476,23 @@ function recline_format_default_item($name, $url) {
     ),
   );
   return $output;
+}
+
+/**
+ * Returns output for a geojson file.
+ */
+function recline_geojson_formatter_output($uri) {
+  $url = file_create_url($uri);
+  dpm($url);
+  $recline_formatter = new ReclineFormatter();
+  $item['url'] = $recline_formatter->getGeojsonData($url);
+  if (!empty($item['url'])) {
+    $item['title'] = $item['url'];
+    return recline_format_link_api($item);
+  }
+  else {
+    return '';
+  }
 }
 
 /**

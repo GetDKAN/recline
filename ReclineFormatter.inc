@@ -73,4 +73,19 @@ class ReclineFormatter {
       }
     }
   }
+
+  /**
+   * Returns a url to a map from geojson.io.
+   */
+  public function getGeojsonData($url) {
+    $response = drupal_http_request($url);
+    if ($response->code == '200') {
+      $geojson_url = 'http://geojson.io/#data=data:application/json,' . $response->data;
+      $geojson_response = drupal_http_request($geojson_url);
+      if ($geojson_response->code == '200' && preg_match('/text\/html.*/', $geojson_response->headers['content-type']) == 1) {
+        return $geojson_url;
+      }
+    }
+    return '';
+  }
 }
