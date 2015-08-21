@@ -364,38 +364,44 @@ function theme_recline_default_formatter($variables) {
   $type = $recline_formatter->getType($variables['item']);
 
   switch ($type) {
-  case 'file':
-    if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
-      $output = recline_format_item_archive($variables['item']['uri']);
-    }
-    else {
+    case 'file':
+      if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
+        $output = recline_format_item_archive($variables['item']['uri']);
+      }
+      else {
+        $output = recline_default_formatter_output($variables);
+      }
+      break;
+
+    case 'csv':
       $output = recline_default_formatter_output($variables);
-    }
-    break;
+      break;
 
-  case 'csv':
-    $output = recline_default_formatter_output($variables);
-    break;
+    case 'json':
+      $output = recline_prettify_json($recline_formatter->getJsonData($variables['item']));
+      break;
 
-  case 'xml':
-    // $output = show_pretify_xml();
-    break;
+    case 'geojson':
+      // $output = show_geojson_map();
+      break;
 
-  case 'json':
-    $output = recline_prettify_json($recline_formatter->getJsonData($variables['item']));
-    break;
+    case 'html':
+      $output = recline_format_link_api($variables['item']);
+      break;
 
-  case 'geojson':
-    // $output = show_geojson_map();
-    break;
-
-  case 'html':
-    $output = recline_format_link_api($variables['item']);
-    break;
-
-  default:
-    dpm('we can\'t show anything.');
-    $output = recline_format_default_item($variables['item']['title'], $recline_formatter->getUrl($variables['item']));
+    default:
+      dpm('we can\'t show anything.');
+      if (isset($variables['item']['title'])) {
+        $output = recline_format_default_item($variables['item']['title'], $recline_formatter->getUrl($variables['item']));
+      }
+      else {
+        if (isset($variables['item']['filename'])) {
+          $output = recline_format_default_item($variables['item']['filename'], $recline_formatter->getUrl($variables['item']));
+        }
+        else {
+          $output = recline_format_default_item('Link to the resource', $recline_formatter->getUrl($variables['item']));
+        }
+      }
   }
 
   return drupal_render($output);
