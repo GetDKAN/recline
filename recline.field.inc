@@ -374,7 +374,10 @@ function theme_recline_default_formatter($variables) {
           case 'application/octet-stream':
             // If it is a geojson file, format it to show the map.
             if (preg_match('/.*\.geojson/', $variables['item']['uri'], $matches) == 1) {
-              $output = recline_geojson_formatter_output($variables['item']['uri']);
+              $output = recline_geojson_formatter_output_leaflet($variables['item']['uri']);
+              // Uncomment the following line and comment the line above if you
+              // want to format this field using geojson.io.
+              // $output = recline_geojson_formatter_output($variables['item']['uri']);
               if (empty($output)) {
                 $output = recline_default_formatter_output($variables);
               }
@@ -483,7 +486,6 @@ function recline_format_default_item($name, $url) {
  */
 function recline_geojson_formatter_output($uri) {
   $url = file_create_url($uri);
-  dpm($url);
   $recline_formatter = new ReclineFormatter();
   $item['url'] = $recline_formatter->getGeojsonData($url);
   if (!empty($item['url'])) {
@@ -493,6 +495,38 @@ function recline_geojson_formatter_output($uri) {
   else {
     return '';
   }
+}
+
+/**
+ * Returns output for a geojson file using leaflet library.
+ */
+function recline_geojson_formatter_output_leaflet($uri) {
+  $url = file_create_url($uri);
+  $recline_formatter = new ReclineFormatter();
+  $geojson = $recline_formatter->getGeojsonData($url);
+
+  drupal_add_library('leaflet_widget', 'leaflet_core');
+  $output = "var dataExtent = " . $geojson;
+  $output .= "; var map = L.map('map');
+  L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+    maxZoom: 7,
+      attribution: 'Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, ' +
+      '<a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, ' +
+      'Imagery © <a href=\"http://mapbox.com\">Mapbox</a>',
+      id: 'examples.map-20v6611k'
+}).addTo(map);
+
+  var geojson = L.geoJson(dataExtent).addTo(map);
+  map.fitBounds(geojson.getBounds());";
+
+  drupal_add_js($output, array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
+  return array(
+    'map' => array(
+      '#type' => 'markup',
+      '#markup' => '<div id="map" style="height:250px; width:100%"></div>',
+    ),
+  );
+  return $output;
 }
 
 /**
