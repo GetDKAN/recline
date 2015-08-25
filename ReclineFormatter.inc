@@ -25,7 +25,6 @@ class ReclineFormatter {
     }
     else {
       $response = drupal_http_request($url);
-      dpm($response, 'formatter response');
       if ($response->code != '200') {
         return 'none';
       }
@@ -78,6 +77,7 @@ class ReclineFormatter {
    * Returns a url to a map from geojson.io.
    */
   public function getGeojsonDataURL($url) {
+    drupal_flush_all_caches();
     $response = drupal_http_request($url);
     if ($response->code == '200') {
       $geojson_url = 'http://geojson.io/#data=data:application/json,' . $response->data;
