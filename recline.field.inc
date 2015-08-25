@@ -285,18 +285,8 @@ function recline_field_formatter_info() {
   $formatters = array(
     'recline_default_formatter' => array(
       'label' => t('Recline.js visualization'),
-      'field types' => array('recline_field', 'file'),
+      'field types' => array('recline_field', 'file', 'link_field'),
       // TODO: add some settings.
-      'settings' => array(),
-    ),
-    'recline_link_formatter' => array(
-      'label' => t('Recline field link'),
-      'field types' => array('recline_field'),
-      'settings' => array(),
-    ),
-    'recline_url_formatter' => array(
-      'label' => t('Recline field URI'),
-      'field types' => array('recline_field'),
       'settings' => array(),
     ),
   );
@@ -370,42 +360,212 @@ function theme_recline_url_formatter($variables) {
  * @ingroup themeable
  */
 function theme_recline_default_formatter($variables) {
-  $output = recline_default_formatter_output($variables);
-  // We should REALLY think about how we want to architecture this. I don't like
-  // the case by case thing going on here. We should provide a way of tying file
-  // extensions with render functions so people can hook on this field formatter
-  // for an extra set of mime types
-  if (isset($variables['item']['filemime']) && $variables['item']['filemime'] == 'application/zip') {
-    $uri = $variables['item']['uri'];
-    if (is_numeric(strpos($uri, 'public://'))) {
-      // List files if item is an archive.
-      $archiver = archiver_get_archiver($uri);
-      if ($archiver) {
-        $module_path = drupal_get_path('module', 'recline');
-        drupal_add_css($module_path . '/recline.css');
-        $output['ziplist'] = array(
-          '#theme' => 'item_list',
-          '#prefix' => '<div id="recline-zip-list">',
-          '#suffix' => '</div>',
-          '#title' => t('%number files in this archive', array('%number' => count($archiver->listContents()))),
-          '#items' => $archiver->listContents(),
-        );
+  $recline_formatter = new ReclineFormatter();
+  $type = $recline_formatter->getType($variables['item']);
+
+  switch ($type) {
+    case 'file':
+      if (isset($variables['item']['filemime'])) {
+        switch ($variables['item']['filemime']) {
+          case 'application/zip':
+            $output = recline_format_item_archive($variables['item']['uri']);
+            break;
+
+          case 'application/octet-stream':
+            // If it is a geojson file, format it to show the map.
+            if (preg_match('/.*\.geojson/', $variables['item']['uri'], $matches) == 1) {
+              $output = recline_geojson_formatter_output_leaflet($variables['item']['uri']);
+              // Uncomment the following line and comment the line above if you
+              // want to format this field using geojson.io.
+              // $output = recline_geojson_formatter_output($variables['item']['uri']);
+              if (empty($output)) {
+                $output = recline_default_formatter_output($variables);
+              }
+            }
+            else {
+              $output = recline_default_formatter_output($variables);
+            }
+            break;
+
+          case 'application/json':
+            $url['url'] = file_create_url($variables['item']['uri']);
+            $output = recline_prettify_json($recline_formatter->getJsonData($url), $url['url']);
+            break;
+
+          default:
+            $output = recline_default_formatter_output($variables);
+        }
       }
-      elseif ($format == 'zip') {
-        $archivers_available = implode(', ', array_keys(archiver_get_info()));
-        drupal_set_message(t('Unable to provide file listing for zip format on this system. Available archiver formats are: %s',
-          array('%s' => $archivers_available)));
+      break;
+
+    case 'csv':
+      $output = recline_default_formatter_output($variables);
+      break;
+
+    case 'json':
+      $output = recline_prettify_json($recline_formatter->getJsonData($variables['item']), file_create_url($variables['item']['uri']));
+      break;
+
+    case 'html':
+      $output = recline_format_link_api($variables['item']);
+      break;
+
+    default:
+      if (isset($variables['item']['title'])) {
+        $output = recline_format_default_item($variables['item']['title'], $recline_formatter->getUrl($variables['item']));
       }
-    }
-    else {
-      $output['ziplist'] = array(
-        '#theme' => 'item_list',
-        '#title' => t('Unable to provide file listing for remote zip file.'),
-      );
-    }
+      else {
+        if (isset($variables['item']['filename'])) {
+          $output = recline_format_default_item($variables['item']['filename'], $recline_formatter->getUrl($variables['item']));
+        }
+        else {
+          $output = recline_format_default_item('Link to the resource', $recline_formatter->getUrl($variables['item']));
+        }
+      }
   }
 
   return drupal_render($output);
+}
+
+/**
+ * Builds output for a link of an api.
+ */
+function recline_format_link_api($item) {
+  return array(
+    'iframe' => array(
+      '#type' => 'html_tag',
+      '#tag' => 'iframe',
+      '#attributes' => array(
+        'name' => $item['title'],
+        'src' => url($item['url']),
+        'height' => 600,
+        'width' => 900,
+        'style' => '',
+      ),
+      '#value' => '',
+    ),
+    'download' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="download"><p>You can find the full resource here:</br>' . l($item['title'], $item['url']) . '</p></div>',
+    ),
+  );
+}
+
+/**
+ * Prettify json.
+ */
+function recline_prettify_json($data) {
+  libraries_load('jquery-jsonview');
+  $module_path = drupal_get_path('module', 'recline');
+  drupal_add_js(array('recline' => array('data' => $data)), 'setting');
+  drupal_add_js($module_path . '/jsondataview.js');
+  return array(
+    'toggle_btn' => array(
+      '#type' => 'markup',
+      '#markup' => '<a id="toggle-btn" class="embed-link">Toggle view</a>',
+    ),
+    'data_json' => array(
+      '#type' => 'markup',
+      '#markup' => '<div id="recline-data-json"></div>',
+    ),
+    'download' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="download"><p>You can find the full resource here: </br>' . l($url, $url) . '</p></div>',
+    ),
+  );
+}
+
+/**
+ * Returns link to the resource.
+ */
+function recline_format_default_item($name, $url) {
+  $file = l($name, $url);
+  $output = array(
+    'download' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="download"><p>The preview of this resource is not available but you can find it here:</br>' . $file . '</p></div>',
+    ),
+  );
+  return $output;
+}
+
+/**
+ * Returns output for a geojson file.
+ */
+function recline_geojson_formatter_output($uri) {
+  $url = file_create_url($uri);
+  $recline_formatter = new ReclineFormatter();
+  $item['url'] = $recline_formatter->getGeojsonDataURL($url);
+  if (!empty($item['url'])) {
+    $item['title'] = $item['url'];
+    return recline_format_link_api($item);
+  }
+  else {
+    return '';
+  }
+}
+
+/**
+ * Returns output for a geojson file using leaflet library.
+ */
+function recline_geojson_formatter_output_leaflet($uri) {
+  $url = file_create_url($uri);
+  $recline_formatter = new ReclineFormatter();
+  $geojson = $recline_formatter->getGeojsonData($url);
+
+  drupal_add_library('leaflet_widget', 'leaflet_core');
+  $output = "var dataExtent = " . $geojson;
+  $output .= "; var map = L.map('map');
+  L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+    maxZoom: 7,
+      attribution: 'Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, ' +
+      '<a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, ' +
+      'Imagery © <a href=\"http://mapbox.com\">Mapbox</a>',
+      id: 'examples.map-20v6611k'
+}).addTo(map);
+
+  var geojson = L.geoJson(dataExtent).addTo(map);
+  map.fitBounds(geojson.getBounds());";
+
+  drupal_add_js($output, array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
+  $geojson_url = $recline_formatter->getGeojsonDataURL($url);
+  return array(
+    'map' => array(
+      '#type' => 'markup',
+      '#markup' => '<div id="map" style="height:250px; width:100%"></div>',
+    ),
+    'download' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="download"><p>You can find the full resource here:</br>' . l($url, $url) . '</p></div>',
+      // '#markup' => '<div class="download"><p>You can find the full resource here:</br>' . l($geojson_url, $geojson_url) . '</p></div>',
+    ),
+  );
+  return $output;
+}
+
+/**
+ * Builds output render array for files if item is an archive.
+ */
+function recline_format_item_archive($uri) {
+  // List files if item is an archive.
+  $archiver = archiver_get_archiver($uri);
+  if ($archiver) {
+    $module_path = drupal_get_path('module', 'recline');
+    drupal_add_css($module_path . '/recline.css');
+    $output['ziplist'] = array(
+      '#theme' => 'item_list',
+      '#prefix' => '<div id="recline-zip-list">',
+      '#suffix' => '</div>',
+      '#title' => t('%number files in this archive', array('%number' => count($archiver->listContents()))),
+      '#items' => $archiver->listContents(),
+    );
+  }
+  elseif ($format == 'zip') {
+    $archivers_available = implode(', ', array_keys(archiver_get_info()));
+    drupal_set_message(t('Unable to provide file listing for zip format on this system. Available archiver formats are: %s',
+      array('%s' => $archivers_available)));
+  }
+  return $output;
 }
 
 /**
