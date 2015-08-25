@@ -389,7 +389,7 @@ function theme_recline_default_formatter($variables) {
 
           case 'application/json':
             $url['url'] = file_create_url($variables['item']['uri']);
-            $output = recline_prettify_json($recline_formatter->getJsonData($url));
+            $output = recline_prettify_json($recline_formatter->getJsonData($url), $url['url']);
             break;
 
           default:
@@ -403,7 +403,7 @@ function theme_recline_default_formatter($variables) {
       break;
 
     case 'json':
-      $output = recline_prettify_json($recline_formatter->getJsonData($variables['item']));
+      $output = recline_prettify_json($recline_formatter->getJsonData($variables['item']), file_create_url($variables['item']['uri']));
       break;
 
     case 'html':
@@ -444,6 +444,10 @@ function recline_format_link_api($item) {
       ),
       '#value' => '',
     ),
+    'download' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="download"><p>You can find the full resource here:</br>' . l($item['title'], $item['url']) . '</p></div>',
+    ),
   );
 }
 
@@ -464,6 +468,10 @@ function recline_prettify_json($data) {
       '#type' => 'markup',
       '#markup' => '<div id="recline-data-json"></div>',
     ),
+    'download' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="download"><p>You can find the full resource here: </br>' . l($url, $url) . '</p></div>',
+    ),
   );
 }
 
@@ -475,7 +483,7 @@ function recline_format_default_item($name, $url) {
   $output = array(
     'download' => array(
       '#type' => 'markup',
-      '#markup' => '<div class="download"><p>The preview of this resource is not available but you can find it here:</p>' . $file . '</div>',
+      '#markup' => '<div class="download"><p>The preview of this resource is not available but you can find it here:</br>' . $file . '</p></div>',
     ),
   );
   return $output;
@@ -487,7 +495,7 @@ function recline_format_default_item($name, $url) {
 function recline_geojson_formatter_output($uri) {
   $url = file_create_url($uri);
   $recline_formatter = new ReclineFormatter();
-  $item['url'] = $recline_formatter->getGeojsonData($url);
+  $item['url'] = $recline_formatter->getGeojsonDataURL($url);
   if (!empty($item['url'])) {
     $item['title'] = $item['url'];
     return recline_format_link_api($item);
@@ -520,10 +528,16 @@ function recline_geojson_formatter_output_leaflet($uri) {
   map.fitBounds(geojson.getBounds());";
 
   drupal_add_js($output, array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
+  $geojson_url = $recline_formatter->getGeojsonDataURL($url);
   return array(
     'map' => array(
       '#type' => 'markup',
       '#markup' => '<div id="map" style="height:250px; width:100%"></div>',
+    ),
+    'download' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="download"><p>You can find the full resource here:</br>' . l($url, $url) . '</p></div>',
+      // '#markup' => '<div class="download"><p>You can find the full resource here:</br>' . l($geojson_url, $geojson_url) . '</p></div>',
     ),
   );
   return $output;
