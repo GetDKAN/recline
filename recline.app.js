@@ -2,6 +2,9 @@
  * @file
  * Provides options for recline visualization.
  */
+_.templateSettings = {
+  interpolate: /\{\{(.+?)\}\}/g
+};
 
 (function ($) {
     var maxLabelWidth = 77;
@@ -45,8 +48,19 @@
                     beforeSend: function (jqXHR, settings) {
                         /* add url property and get value from settings (or from caturl)*/
                         jqXHR.dkan = dkan;
+                        notify({message:'Loading'});
+                    },
+                    xhrFields: {
+                        onprogress: function (e) {
+                            if (e.lengthComputable) {
+                                notify({message:'Loading', percentage: parseFloat(e.loaded / e.total * 100).toFixed(1) + '%'});
+                            } else {
+                                console.log('Length not computable.');
+                            }
+                        }
                     },
                     success: function(data, status, jqXHR) {
+                        hideNotification();
                         var dataset, views;
                         if (jqXHR.dkan) {
                             if ('success' in data && data.success) {
@@ -315,4 +329,19 @@
             });
         }
     }
+
+    function notify(notification) {
+        var notification = _.defaults(notification, {percentage: ''});
+        var tpl ='{{message}} <span class="spin">&nbsp;</span> <p>{{percentage}}</p>';
+        var template = _.template(tpl);
+        var $notification_box = $('.loader');
+
+        $notification_box.html(template(notification));
+        $notification_box.show();
+    }
+
+    function hideNotification(){
+        $('.loader').empty().hide();
+    }
+
 })(jQuery);
