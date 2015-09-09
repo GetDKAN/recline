@@ -97,12 +97,14 @@ _.templateSettings = {
                 };
                 if (dkan) {
                     ajax_options.error = function(data, status, jqXHR) {
+                        hideNotification();
                         $('.data-explorer').append('<div class="messages status">Unable to connect to the datastore.</div>');
                     };
                 }
                 else {
                     ajax_options.timeout = Drupal.settings.recline.ajax_timeout;
                     ajax_options.error = function(x, t, m) {
+                        hideNotification();
                         if (t === "timeout") {
                             $('.data-explorer').append('<div class="messages status">Viewing this data in your browser is temporally unavailable. Please download and view the data on your computer.</div>');
                         } else {
