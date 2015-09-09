@@ -104,9 +104,9 @@ _.templateSettings = {
                     ajax_options.timeout = Drupal.settings.recline.ajax_timeout;
                     ajax_options.error = function(x, t, m) {
                         if (t === "timeout") {
-                            $('.data-explorer').append('<div class="messages status">File was too large or unavailable for preview.</div>');
+                            $('.data-explorer').append('<div class="messages status">Viewing this data in your browser is temporally unavailable. Please download and view the data on your computer.</div>');
                         } else {
-                            $('.data-explorer').append('<div class="messages status">Data preview unavailable.</div>');
+                            $('.data-explorer').append('<div class="messages status">Viewing this data in your browser is temporally unavailable. Please download and view the data on your computer.</div>');
                         }
                     };
                 }
