@@ -229,7 +229,7 @@ _.templateSettings = {
     function getEmbedCode(options){
         return function(state){
             var iframeOptions = _.clone(options);
-            var iframeTmpl = _.template('<iframe width="<%= width %>" height="<%= height %>" src="<%= src %>" frameborder="0"></iframe>');
+            var iframeTmpl = _.template('<iframe width="{{width}}" height="{{height}}" src="{{src}}>" frameborder="0"></iframe>');
             _.extend(iframeOptions, {src: iframeOptions.src + '#' + (state.serializedState || '')});
             var html = iframeTmpl(iframeOptions);
             $('.embed-code').text(html);
