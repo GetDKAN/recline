@@ -143,17 +143,22 @@ _.templateSettings = {
         $el.appendTo(window.explorerDiv);
 
         var views = [];
+        var grid, graph, map;
 
         if (settings.grid) {
+            grid = new recline.View.SlickGrid({
+                model: dataset
+            });
             views.push(
                 {
                     id: 'grid',
                     label: 'Grid',
-                    view: new recline.View.SlickGrid({
-                        model: dataset
-                    })
+                    view: grid
                 }
             );
+            grid.listenTo(dataset, 'query:done', function() {
+                resizeAllColumns(grid.grid);
+            });
         }
         if (settings.graph) {
             state.graphOptions = {
@@ -165,25 +170,27 @@ _.templateSettings = {
                     bindEvents: [bindEvents],
                 }
             };
+            graph = new recline.View.Graph({
+                model: dataset,
+                state: state
+            });
             views.push(
                 {
                     id: 'graph',
                     label: 'Graph',
-                    view: new recline.View.Graph({
-                        model: dataset,
-                        state: state
-                    })
+                    view: graph
                 }
             );
         }
         if (settings.map) {
+            map = new recline.View.Map({
+                model: dataset
+            });
             views.push(
                 {
                     id: 'map',
                     label: 'Map',
-                    view: new recline.View.Map({
-                        model: dataset
-                    })
+                    view: map
                 }
             );
         }
@@ -225,6 +232,11 @@ _.templateSettings = {
       $(this).parents('.recline-embed').find('.embed-code-wrapper').toggle();
       return false;
     });
+
+
+    //==========================================
+    // Functions
+    // -----------------------------------------
 
     function getEmbedCode(options){
         return function(state){
@@ -344,6 +356,100 @@ _.templateSettings = {
 
     function hideNotification(){
         $('.loader').empty().hide();
+    }
+
+
+    // Column resizing based on content width
+    // Based on https://github.com/naresh-n/slickgrid-column-data-autosize
+    function resizeAllColumns(grid) {
+        var $container = $('.recline-data-explorer');
+        var elHeaders = $container.find('.slick-header-column');
+        var allColumns = grid.getColumns();
+        elHeaders.each(function(index, el) {
+          var columnDef = $(el).data('column');
+          var headerWidth = getElementWidth(el) + 9; // Needed extra right padding
+          var colIndex = grid.getColumnIndex(columnDef.id);
+          var column = allColumns[colIndex];
+          var autoSizeWidth = Math.max(headerWidth, getMaxColumnTextWidth(grid, columnDef, colIndex, $container));
+          allColumns[colIndex].width = autoSizeWidth;
+        });
+        grid.setColumns(allColumns);
+
+        // Adjust width to ensure visibility of horizontal scrollbar in iframe
+        // var tableWidth = $('.grid-canvas').outerWidth();
+        // $('#ve-table').width(tableWidth);
+        grid.setColumns(allColumns);
+    }
+
+    function getMaxColumnTextWidth(grid, columnDef, colIndex, $container) {
+        var texts = [];
+        var rowEl = createRow(columnDef, $container);
+        var data = grid.getData();
+        for (var i = 0; i < data.getLength(); i++) {
+          texts.push(data.getItem(i)[columnDef.field]);
+        }
+        var template = getMaxTextTemplate(texts, columnDef, colIndex, data, rowEl, $container);
+        var width = getTemplateWidth(rowEl, template);
+        deleteRow(rowEl);
+        return width;
+    }
+
+    function getTemplateWidth(rowEl, template) {
+        var cell = $(rowEl.find(".slick-cell"));
+        cell.append(template);
+        $(cell).find("*").css("position", "relative");
+        return cell.outerWidth() + 1;
+    }
+
+    function getMaxTextTemplate(texts, columnDef, colIndex, data, rowEl, $container) {
+        var max = 0,
+        maxTemplate = null;
+        var formatFun = columnDef.formatter;
+        $(texts).each(function(index, text) {
+          var template;
+          if (formatFun) {
+            template = $("<span>" + formatFun(index, colIndex, text, columnDef, data) + "</span>");
+            text = template.text() || text;
+          }
+          var length = text ? getElementWidthUsingCanvas(rowEl, text, $container) : 0;
+          if (length > max) {
+            max = length;
+            maxTemplate = template || text;
+          }
+        });
+        return maxTemplate;
+    }
+
+    function createRow(columnDef, $container) {
+        var rowEl = $('<div class="slick-row"><div class="slick-cell"></div></div>');
+        rowEl.find('.slick-cell').css({
+          'visibility': 'hidden',
+          'text-overflow': 'initial',
+          'white-space': 'nowrap'
+        });
+        var gridCanvas = $container.find('.grid-canvas');
+        $(gridCanvas).append(rowEl);
+        return rowEl;
+    }
+
+    function deleteRow(rowEl) {
+        $(rowEl).remove();
+    }
+
+    function getElementWidth(element) {
+        var width, clone = element.cloneNode(true);
+        clone.style.cssText = 'position: absolute; visibility: hidden;right: auto;text-overflow: initial;white-space: nowrap;';
+        element.parentNode.insertBefore(clone, element);
+        width = clone.offsetWidth;
+        clone.parentNode.removeChild(clone);
+        return width;
+    }
+
+    function getElementWidthUsingCanvas(element, text) {
+        var context = document.createElement("canvas").getContext("2d");
+        context.font = element.css("font-size") + " " + element.css("font-family");
+        var metrics = context.measureText(text);
+        return metrics.width;
     }
 
 })(jQuery);
