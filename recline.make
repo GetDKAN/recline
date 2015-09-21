@@ -75,3 +75,10 @@ libraries[leaflet_markercluster][download][type] = git
 libraries[leaflet_markercluster][download][url] = "https://github.com/Leaflet/Leaflet.markercluster.git"
 libraries[leaflet_markercluster][directory_name] = leaflet_markercluster
 libraries[leaflet_markercluster][download][revision] = "c5864dbfca9e71c86ac61b432862cc77f8fd8e68"
+
+# JSON VIEW
+libraries[jquery-jsonview][type] = libraries
+libraries[jquery-jsonview][download][type] = git
+libraries[jquery-jsonview][download][url] = "https://github.com/yesmeck/jquery-jsonview.git"
+libraries[jquery-jsonview][directory_name] = jquery-jsonview
+libraries[jquery-jsonview][download][revision] = "84fb68cc25e4749d2adf5af8dc3adefd80b4c430"
