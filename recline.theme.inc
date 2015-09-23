@@ -210,8 +210,15 @@ function recline_prettify_json($url) {
   else {
     return recline_data_unavailable();
   }
-  if (substr($data, 0, 27) == '{"type":"FeatureCollection"') {
-    return recline_geojson_formatter_output_leaflet($url);
+  $decoded = drupal_json_decode($data);
+  $types = array('FeatureCollection', 'GeometryCollection', 'Feature', 'Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon');
+
+  foreach ($types as $type) {
+    foreach ($decoded as $key => $value) {
+      if ($type === $value) {
+        return recline_geojson_formatter_output_leaflet($url);
+      }
+    }
   }
 
   libraries_load('jquery-jsonview');
@@ -283,7 +290,6 @@ function recline_geojson_formatter_output_leaflet($url) {
     map.fitBounds(geojson.getBounds());";
 
   drupal_add_js($output, array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
-  $geojson_url = $recline_formatter->getGeojsonDataURL($url);
   return array(
     'map' => array(
       '#type' => 'markup',
