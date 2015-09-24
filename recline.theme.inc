@@ -138,11 +138,13 @@ function theme_recline_default_formatter($vars) {
       }
       break;
 
-    case 'pdf':
-     // TODO
-
     case 'xml':
-     // TODO
+      $output['preview'] = recline_prettify_xml($url);
+      break;
+
+    case 'pdf':
+      $output['preview'] = recline_format_link_api($url);
+      break;
 
     case 'rdf':
      // TODO
@@ -236,6 +238,38 @@ function recline_prettify_json($url) {
     ),
   );
   return $json;
+}
+
+/**
+ * Prettify xml.
+ */
+function recline_prettify_xml($url) {
+
+  $response = drupal_http_request($url, array('timeout' => 5));
+  if ($response->code == '200') {
+    $data = recline_replace_lt_gt($response->data);
+  }
+  else {
+    return recline_data_unavailable();
+  }
+
+  drupal_add_library('recline', 'highlight');
+  drupal_add_js('jQuery(document).ready(function () {hljs.initHighlightingOnLoad();});', 'inline');
+  $xml = array(
+    'data_xml' => array(
+      '#type' => 'markup',
+      '#markup' => '<pre><code class="hljs xml">' . $data . '</code></pre>',
+    ),
+  );
+  return $xml;
+}
+
+/**
+ * Replace angle brackets.
+ */
+function recline_replace_lt_gt($data) {
+  $replaced = preg_replace('/</', '&lt;', $data);
+  return preg_replace('/>/', '&gt;', $replaced);
 }
 
 /**

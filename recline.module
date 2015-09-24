@@ -403,6 +403,41 @@ function recline_libraries_info() {
     ),
   );
 
+  $libraries['highlight'] = array(
+    'name' => 'Highlight.js',
+    'vendor url' => 'https://github.com/isagalaev/highlight.js',
+    'download url' => 'https://github.com/isagalaev/highlight.js',
+    'path' => '',
+    'version' => '8.8.0',
+    'files' => array(
+      'js' => array(
+        'highlight.pack.js',
+      ),
+      'css' => array(
+        'styles/default.css',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_library().
+ */
+function recline_library() {
+  $libraries['highlight'] = array(
+    'title' => 'Highlight.js',
+    'website' => 'https://github.com/isagalaev/highlight.js',
+    'version' => '8.8.0',
+    'js' => array(
+      drupal_get_path('module', 'recline') . '/highlight/highlight.pack.js' => array('group' => JS_DEFAULT),
+    ),
+    'css' => array(
+      drupal_get_path('module', 'recline') . '/highlight/styles/default.css',
+    ),
+  );
+
   return $libraries;
 }
 
