@@ -440,15 +440,20 @@ function recline_default_formatter_output($variables) {
     $options['attributes']['title'] = check_plain($file['filename']);
   }
   $dkan = $table = FALSE;
-  // See if datastore is loaded, if so, prepare recline to view from it.
-  if (module_exists('dkan_datastore_api') && module_exists('feeds_flatstore_processor') && function_exists('dkan_datastore_api_get_feeds_source')) {
-    $source_id = dkan_datastore_api_get_feeds_source($variables['item']['entity']->nid);
-    if ($table = feeds_flatstore_processor_table_name($source_id, $variables['item']['entity']->nid)) {
-      if (db_table_exists($table)) {
-        $dkan = $table;
+  $node = entity_metadata_wrapper('node', $variables['item']['entity']);
+
+  if($node->field_datastore_status->value() == 1) {
+     // See if datastore is loaded, if so, prepare recline to view from it.
+    if (module_exists('dkan_datastore_api') && module_exists('feeds_flatstore_processor') && function_exists('dkan_datastore_api_get_feeds_source')) {
+      $source_id = dkan_datastore_api_get_feeds_source($variables['item']['entity']->nid);
+      if ($table = feeds_flatstore_processor_table_name($source_id, $variables['item']['entity']->nid)) {
+        if (db_table_exists($table)) {
+          $dkan = $table;
+        }
       }
     }
   }
+
   $recline = '';
 
   libraries_load('lodash');
