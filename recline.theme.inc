@@ -118,7 +118,7 @@ function theme_recline_default_formatter($vars) {
     case 'html':
       $output['preview'] = recline_format_link_api($url);
       break;
-      
+
     case 'image':
     case 'png':
     case 'gif':
@@ -128,17 +128,9 @@ function theme_recline_default_formatter($vars) {
 
     case 'arcgis':
     case 'rest':
-      $url = 'http://www.arcgis.com/home/webmap/viewer.html?url=' . $url;
-      $request = drupal_http_request($url, array('timeout' => 10, 'method' => 'HEAD'));
-      if ($request->code != 200) {
-        $output['preview'] = recline_data_unavailable();
-        return drupal_render($output);
-      }
-      else {
-        $output['preview'] = recline_format_link_api($url);
-      }
+      $output['preview'] = recline_preview_arcgis_feature($url);
       break;
-      
+
     case 'rdf':
     case 'xml':
       $output['preview'] = recline_prettify_xml($url);
@@ -269,6 +261,28 @@ function recline_prettify_xml($url) {
 function recline_replace_lt_gt($data) {
   $replaced = preg_replace('/</', '&lt;', $data);
   return preg_replace('/>/', '&gt;', $replaced);
+}
+
+/**
+ * Preview for arcgis and rest data.
+ */
+function recline_preview_arcgis_feature($url) {
+  drupal_add_js('https://cdn.jsdelivr.net/leaflet/0.7.3/leaflet.js', 'external');
+  drupal_add_js('https:////cdn.jsdelivr.net/leaflet.esri/1.0.0/esri-leaflet.js', 'external');
+  drupal_add_css('https://cdn.jsdelivr.net/leaflet/0.7.3/leaflet.css', 'external');
+  drupal_add_css('body { margin:0; padding:0; } #rest-map { position: relative; height: 500px; width: 100%;}', 'inline');
+
+  $module_path = drupal_get_path('module', 'recline');
+  drupal_add_js(array('recline' => array('url' => $url)), 'setting');
+  drupal_add_js($module_path . '/restdataview.js');
+
+  $output = array(
+    'map' => array(
+      '#type' => 'markup',
+      '#markup' => '<div><div id="rest-map"></div></div>',
+    ),
+  );
+  return $output;
 }
 
 /**
