@@ -118,7 +118,8 @@ function theme_recline_default_formatter($vars) {
     case 'html':
       $output['preview'] = recline_format_link_api($url);
       break;
-
+      
+    case 'image':
     case 'png':
     case 'gif':
     case 'jpg':
@@ -137,7 +138,8 @@ function theme_recline_default_formatter($vars) {
         $output['preview'] = recline_format_link_api($url);
       }
       break;
-
+      
+    case 'rdf':
     case 'xml':
       $output['preview'] = recline_prettify_xml($url);
       break;
@@ -145,9 +147,6 @@ function theme_recline_default_formatter($vars) {
     case 'pdf':
       $output['preview'] = recline_format_link_api($url);
       break;
-
-    case 'rdf':
-     // TODO
 
     case 'wms':
       // TODO
