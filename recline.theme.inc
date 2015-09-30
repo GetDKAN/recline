@@ -330,7 +330,7 @@ function recline_geojson_formatter_output_leaflet($url) {
   drupal_add_library('leaflet_widget', 'leaflet_core');
   $output = "var dataExtent = " . $geojson;
   $output .= "; var map = L.map('map');
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a>'
     }).addTo(map);
     var geojson = L.geoJson(dataExtent).addTo(map);
