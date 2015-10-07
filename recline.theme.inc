@@ -76,26 +76,35 @@ function theme_recline_default_formatter($vars) {
   $output = recline_build_icon($url, $type, $file['filename'], $file['filemime'], $file['filesize'], $file['description']);
   $request = drupal_http_request($url, array('timeout' => 10, 'method' => 'HEAD'));
   if ($request->code != 200) {
-    $output['preview'] = recline_data_unavailable();
-    return drupal_render($output);
+    if ($request->code != 405 && $request->code != 400) {
+      $output['preview'] = recline_preview_unavailable();
+      return drupal_render($output);
+    }
+    else {
+      $request = drupal_http_request($url, array('timeout' => 10));
+      if ($request->code != 200) {
+        $output['preview'] = recline_preview_unavailable();
+        return drupal_render($output);
+      }
+    }
   }
 
   switch ($type) {
     case 'json':
-      $output['preview'] = recline_prettify_json($url);
+      $output['preview'] = recline_preview_json($url);
       break;
 
     case 'csv':
-      $output['preview'] = recline_default_formatter_output($url, $file, $vars);
+      $output['preview'] = recline_preview_csv($url, $file, $vars);
       break;
 
     case 'geojson':
-      $output['preview'] = recline_geojson_formatter_output_leaflet($url);
+      $output['preview'] = recline_preview_geojson_leaflet($url);
       break;
 
     case 'zip':
       if (substr($vars['item']['uri'], 0, 4) != 'http') {
-        $output['preview'] = recline_format_item_archive($vars['item']['uri']);
+        $output['preview'] = recline_preview_zip($vars['item']['uri']);
       }
       elseif ($request->headers['content-length'] < 500000) {
         $ch = curl_init($url);
@@ -108,10 +117,10 @@ function theme_recline_default_formatter($vars) {
         curl_exec($ch);
         curl_close($ch);
         fclose($fp);
-        $output['preview'] = recline_format_item_archive($filename);
+        $output['preview'] = recline_preview_zip($filename);
       }
       else {
-        $output[] = recline_data_unavailable();
+        $output['preview'] = recline_preview_unavailable();
       }
       break;
 
@@ -119,7 +128,6 @@ function theme_recline_default_formatter($vars) {
       $output['preview'] = recline_format_link_api($url);
       break;
 
-    case 'image':
     case 'png':
     case 'gif':
     case 'jpg':
@@ -141,13 +149,90 @@ function theme_recline_default_formatter($vars) {
       break;
 
     case 'wms':
-      // TODO
+      // We can accept just the bare endpoint or the XML preview.
+      $parsed = parse_url($url);
+      $wms_url = $parsed['scheme'] . '://' . $parsed['host'] . $parsed['path'];
+      // We need the xml preview to get the correct layers.
+      $service_url = $wms_url . '?request=GetCapabilities&service=WMS';
+
+      // If the initial request was sent without the correct endpoint.
+      if (!isset($request->data) || empty($request->data) || preg_match('/The request not allowed/', $request->data)) {
+        $request = drupal_http_request($service_url, array('timeout' => 10));
+      }
+      if ($request->code != 200) {
+        $output['preview'] = recline_preview_unavailable();
+      }
+      try {
+        $xml = new SimpleXMLElement($request->data);
+        $titles = array();
+        $images = array();
+        if (isset($xml->Capability->Layer->EX_GeographicBoundingBox)) {
+          $north = "{$xml->Capability->Layer->EX_GeographicBoundingBox->northBoundLatitude}";
+          $south = "{$xml->Capability->Layer->EX_GeographicBoundingBox->southBoundLatitude}";
+          $east = "{$xml->Capability->Layer->EX_GeographicBoundingBox->eastBoundLongitude}";
+          $west = "{$xml->Capability->Layer->EX_GeographicBoundingBox->westBoundLongitude}";
+        }
+        else {
+          $north = variable_get("recline_wms_north_bound", "51.2");
+          $south = variable_get("recline_wms_south_bound", "29.2");
+          $east = variable_get("recline_wms_south_bound", "-73.2");
+          $west = variable_get("recline_wms_south_bound", "-125.5");
+        }
+        foreach ($xml->Capability->Layer->Layer as $layer) {
+          $titles[] = "{$layer->Title}";
+          if (isset($layer->Style->LegendURL->OnlineResource)) {
+            $images["{$layer->Title}"] = "{$layer->Style->LegendURL->OnlineResource->attributes('xlink', TRUE)->href}";
+          }
+        }
+        $output['preview'] = recline_preview_wms($wms_url, $titles, $images, $north, $east, $south, $west);
+      }
+      catch (Exception $e) {
+        $output['preview'] = recline_preview_unavailable();
+      }
+      break;
 
     default:
-      $output[] = recline_data_unavailable();
+      $output[] = recline_preview_unavailable();
   }
 
   return drupal_render($output);
+}
+
+
+/**
+ * Previews WMS link.
+ */
+function recline_preview_wms($url, $titles, $images, $north, $east, $south, $west) {
+  $items = array();
+  foreach ($titles as $title) {
+    if (isset($images[$title])) {
+      $title = '<img src="' . $images[$title] . '" alt="' . t("!title legend item", array("!title" => $title)) . '"/> ' . $title;
+    }
+    $items[] = array(
+      'data' => $title,
+    );
+  }
+  $output = "var map = L.map('map', {
+        zoom: 7
+      });";
+
+  drupal_add_js('https://cdn.jsdelivr.net/leaflet/0.7.3/leaflet.js', 'external');
+  drupal_add_css('https://cdn.jsdelivr.net/leaflet/0.7.3/leaflet.css', 'external');
+  $output .= "var url = '" . $url . "';";
+  $output .= "L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);";
+  $output .= "var layers = ['" . implode(",", $titles) . "'];";
+
+  $output .= "var tiles = L.tileLayer.wms(url, {
+          layers: layers,
+          format: 'image/png',
+          transparent: true,
+      }).addTo(map);map.fitBounds([['" . $south . "','" . $west . "'],['" . $north . "','" . $east . "']]);";
+
+  drupal_add_js($output, array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
+  return array(
+    '#type' => 'markup',
+    '#markup' => '<div id="map" style="width: 100%; height: 500px"></div>' . theme('item_list', array('items' => $items, 'title' => t("Legend"), 'attributes' => array('class' => 'list-inline'))),
+  );
 }
 
 /**
@@ -182,7 +267,7 @@ function recline_format_link_api($url) {
 /**
  * Provide unavaiable status message.
  */
-function recline_data_unavailable() {
+function recline_preview_unavailable() {
   return array(
     '#type' => 'markup',
     '#markup' => t('Data preview unavailable.'),
@@ -194,14 +279,14 @@ function recline_data_unavailable() {
 /**
  * Prettify json.
  */
-function recline_prettify_json($url) {
+function recline_preview_json($url) {
 
   $response = drupal_http_request($url, array('timeout' => 5));
   if ($response->code == '200') {
     $data = $response->data;
   }
   else {
-    return recline_data_unavailable();
+    return recline_preview_unavailable();
   }
   $decoded = drupal_json_decode($data);
   $types = array('FeatureCollection', 'GeometryCollection', 'Feature', 'Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon');
@@ -209,7 +294,7 @@ function recline_prettify_json($url) {
   foreach ($types as $type) {
     foreach ($decoded as $key => $value) {
       if ($type === $value) {
-        return recline_geojson_formatter_output_leaflet($url);
+        return recline_preview_geojson_leaflet($url);
       }
     }
   }
@@ -241,7 +326,7 @@ function recline_prettify_xml($url) {
     $data = recline_replace_lt_gt($response->data);
   }
   else {
-    return recline_data_unavailable();
+    return recline_preview_unavailable();
   }
 
   drupal_add_library('recline', 'highlight');
@@ -271,9 +356,11 @@ function recline_preview_arcgis_feature($url) {
   drupal_add_js('https:////cdn.jsdelivr.net/leaflet.esri/1.0.0/esri-leaflet.js', 'external');
   drupal_add_css('https://cdn.jsdelivr.net/leaflet/0.7.3/leaflet.css', 'external');
   drupal_add_css('body { margin:0; padding:0; } #rest-map { position: relative; height: 500px; width: 100%;}', 'inline');
+  $lat = variable_get('recline_default_lat', "38");
+  $lon = variable_get('recline_default_lon', "-99");
 
   $module_path = drupal_get_path('module', 'recline');
-  drupal_add_js(array('recline' => array('url' => $url)), 'setting');
+  drupal_add_js(array('recline' => array('url' => $url, 'lat' => $lat, 'lon' => $lon)), 'setting');
   drupal_add_js($module_path . '/restdataview.js');
 
   $output = array(
@@ -318,7 +405,7 @@ function recline_geojson_formatter_output($uri) {
 /**
  * Returns output for a geojson file using leaflet library.
  */
-function recline_geojson_formatter_output_leaflet($url) {
+function recline_preview_geojson_leaflet($url) {
   $response = drupal_http_request($url);
   if ($response->code == '200') {
     $geojson = $response->data;
@@ -349,13 +436,13 @@ function recline_geojson_formatter_output_leaflet($url) {
 /**
  * Builds output render array for files if item is an archive.
  */
-function recline_format_item_archive($uri) {
+function recline_preview_zip($uri) {
   // List files if item is an archive.
   try {
     $archiver = archiver_get_archiver($uri);
   }
   catch (Exception $e) {
-    return recline_data_unavailable();
+    return recline_preview_unavailable();
   }
   if ($archiver) {
     $module_path = drupal_get_path('module', 'recline');
@@ -404,7 +491,7 @@ function recline_build_icon($url, $format, $filename, $filemime, $filesize, $des
 /**
  * Builds output render array for field formatter.
  */
-function recline_default_formatter_output($url, $file, $variables) {
+function recline_preview_csv($url, $file, $variables) {
   $dkan = $table = FALSE;
   // See if datastore is loaded, if so, prepare recline to view from it.
   if (module_exists('dkan_datastore_api') && module_exists('feeds_flatstore_processor') && function_exists('dkan_datastore_api_get_feeds_source')) {
