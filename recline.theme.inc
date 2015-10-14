@@ -414,13 +414,21 @@ function recline_preview_geojson_leaflet($url) {
     return ;
   }
 
+  $recline = libraries_load('recline');
+  libraries_load('leaflet_markercluster');
+  $leaflet_imgs = $recline['library path'] . '/vendor/leaflet/0.7.3/images';
+  drupal_add_js('L.Icon.Default.imagePath = "/' . $leaflet_imgs . '"', 'inline');
+
   drupal_add_library('leaflet_widget', 'leaflet_core');
   $output = "var dataExtent = " . $geojson;
   $output .= "; var map = L.map('map');
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a>'
+    L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a>'
     }).addTo(map);
-    var geojson = L.geoJson(dataExtent).addTo(map);
+    var markers = new L.markerClusterGroup();
+    var geojson = L.geoJson(dataExtent);
+    markers.addLayer(geojson);
+    map.addLayer(markers);
     map.fitBounds(geojson.getBounds());";
 
   drupal_add_js($output, array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
