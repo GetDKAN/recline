@@ -414,9 +414,8 @@ function recline_preview_geojson_leaflet($url) {
     return ;
   }
 
-  $recline = libraries_load('recline');
   libraries_load('leaflet_markercluster');
-  $leaflet_imgs = $recline['library path'] . '/vendor/leaflet/0.7.3/images';
+  $leaflet_imgs = libraries_get_path('recline') . '/vendor/leaflet/0.7.3/images';
   drupal_add_js('L.Icon.Default.imagePath = "/' . $leaflet_imgs . '"', 'inline');
 
   drupal_add_library('leaflet_widget', 'leaflet_core');
