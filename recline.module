@@ -131,19 +131,19 @@ function recline_theme() {
   return array(
     'recline_default_formatter' => array(
       'variables' => array('item' => NULL),
-      'file' => 'recline.field.inc',
+      'file' => 'recline.theme.inc',
     ),
     'recline_link_formatter' => array(
       'variables' => array('item' => NULL),
-      'file' => 'recline.field.inc',
+      'file' => 'recline.theme.inc',
     ),
     'recline_url_formatter' => array(
       'variables' => array('item' => NULL),
-      'file' => 'recline.field.inc',
+      'file' => 'recline.theme.inc',
     ),
     'recline_widget' => array(
       'render element' => 'element',
-      'file' => 'recline.field.inc',
+      'file' => 'recline.theme.inc',
     ),
     'recline_embed' => array(
       'variables' => array('title' => NULL, 'content' => NULL),
@@ -382,6 +382,62 @@ function recline_libraries_info() {
     ),
   );
 
+  $libraries['jquery-jsonview'] = array(
+    'name' => 'jQuery JSONView',
+    'vendor url' => 'https://github.com/yesmeck/jquery-jsonview',
+    'download url' => 'https://github.com/yesmeck/jquery-jsonview',
+    'path' => '',
+    'version' => array(
+      'file' => 'bower.json',
+      'pattern' => '@+([0-9][.][0-9][.][0-9])@',
+      'lines' => 4,
+      'cols' => 14,
+    ),
+    'files' => array(
+      'js' => array(
+        'dist/jquery.jsonview.js',
+      ),
+      'css' => array(
+        'dist/jquery.jsonview.css',
+      ),
+    ),
+  );
+
+  $libraries['highlight'] = array(
+    'name' => 'Highlight.js',
+    'vendor url' => 'https://github.com/isagalaev/highlight.js',
+    'download url' => 'https://github.com/isagalaev/highlight.js',
+    'path' => '',
+    'version' => '8.8.0',
+    'files' => array(
+      'js' => array(
+        'highlight.pack.js',
+      ),
+      'css' => array(
+        'styles/default.css',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_library().
+ */
+function recline_library() {
+  $libraries['highlight'] = array(
+    'title' => 'Highlight.js',
+    'website' => 'https://github.com/isagalaev/highlight.js',
+    'version' => '8.8.0',
+    'js' => array(
+      drupal_get_path('module', 'recline') . '/highlight/highlight.pack.js' => array('group' => JS_DEFAULT),
+    ),
+    'css' => array(
+      drupal_get_path('module', 'recline') . '/highlight/styles/default.css',
+    ),
+  );
+
   return $libraries;
 }
 
@@ -432,4 +488,16 @@ function recline_file_download($uri, $field_type = 'file') {
  */
 function recline_file_resup_supported_field_widget_types() {
   return 'recline_widget';
+}
+
+/*
+ * Returns array of possible view types supported by Recline.
+ */
+function recline_view_options() {
+  $options = array(
+    'grid' => t('Grid'),
+    'graph' => t('Graph'),
+    'map' => t('Map'),
+  );
+  return $options + module_invoke_all('recline_view_options');
 }
