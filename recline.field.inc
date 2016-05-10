@@ -544,7 +544,7 @@ function recline_default_formatter_output($variables) {
   }
   $output['data_explorer'] = array(
     '#type' => 'markup',
-    '#markup' => '<span class="data-explorer"></span>',
+    '#markup' => '<span class="data-explorer"><div style="display:none" class="alert alert-info loader">Loading</div></span>'
   );
   return $output;
 }
