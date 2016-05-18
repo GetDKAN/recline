@@ -8,7 +8,7 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
   // This provides connection to the CKAN DataStore (v2)
   //
   // General notes
-  // 
+  //
   // We need 2 things to make most requests:
   //
   // 1. CKAN API endpoint
@@ -16,13 +16,13 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
   //
   // There are 2 ways to specify this information.
   //
-  // EITHER (checked in order): 
+  // EITHER (checked in order):
   //
   // * Every dataset must have an id equal to its resource id on the CKAN instance
   // * The dataset has an endpoint attribute pointing to the CKAN API endpoint
   //
   // OR:
-  // 
+  //
   // Set the url attribute of the dataset to point to the Resource on the CKAN instance. The endpoint and id will then be automatically computed.
 
   my.__type__ = 'ckan_get';
@@ -58,6 +58,8 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
         useMemoryStore: false
       };
       dfd.resolve(out);
+    }).fail(function(req, status){
+      dfd.reject({error: {message: status, request: req}});
     });
     return dfd.promise();
   };
