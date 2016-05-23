@@ -137,7 +137,7 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
       var filters = "";
       if (data.filters) {
         for (var filter in data.filters) {
-          filters = "&filters[" + filter + "]=" + data.filters[filter];
+          filters += "&filters[" + filter + "]=" + data.filters[filter];
         }
       }
       var searchUrl = that.endpoint + '/3/action/datastore_search?=' + objToQuery(data) + filters;
