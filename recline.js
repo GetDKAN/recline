@@ -3,11 +3,10 @@
     // Constants.
     var MAX_LABEL_WIDTH = 77;
     var LABEL_MARGIN = 5;
-    var FILE_SIZE_PREVIEW_LIMIT = 1048576;
 
     // Undefined variables.
     var dataset, views, datasetOptions, fileSize, fileType, router;
-    var dataExplorerSettings, state, $explorer, dataExplorer;
+    var dataExplorerSettings, state, $explorer, dataExplorer, maxSizePreview;
 
     // Create drupal behavior
     Drupal.behaviors.Recline = {
@@ -16,6 +15,8 @@
         // Local scoped variables.
         fileSize = Drupal.settings.recline.fileSize;
         fileType = Drupal.settings.recline.fileType;
+        maxSizePreview = Drupal.settings.recline.maxSizePreview;
+
         dataExplorerSettings = {
           grid: Drupal.settings.recline.grid,
           graph: Drupal.settings.recline.graph,
@@ -313,7 +314,7 @@
 
     // Init the multiview.
     function init () {
-      if(fileSize < FILE_SIZE_PREVIEW_LIMIT) {
+      if(fileSize < maxSizePreview) {
         dataset = new recline.Model.Dataset(getDatasetOptions());
         dataset.fetch().fail(showRequestError);
         views = createExplorer(dataset, state, dataExplorerSettings);

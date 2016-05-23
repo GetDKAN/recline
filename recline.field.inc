@@ -472,13 +472,15 @@ function recline_default_formatter_output($variables) {
     isset($variables['item']['graph']) &&
     isset($variables['item']['map']) &&
     isset($variables['item']['embed'])) {
+
     if ($variables['item']['map'] || $variables['item']['grid'] || $variables['item']['graph'] || $variables['item']['embed']) {
       $uuid = isset($variables['item']['entity']->uuid) ? $variables['item']['entity']->uuid : FALSE;
-      $file_path = isset($variables['item']['uri']) ? file_create_url($variables['item']['uri']) : "";
+      $file_path = isset($variables['item']['uri']) ? file_create_url($variables['item']['uri']) : '';
+      $real_path = drupal_realpath($variables['item']['uri']);
       $settings['recline'] = array(
         'file' => $file_path,
         'fileType' => $variables['item']['filemime'],
-        'fileSize' => (file_exists($file_path)) ? filesize($file_path) : 0,
+        'fileSize' => (file_exists($real_path)) ? filesize($real_path) : 0,
         'delimiter' => $variables['item']['delimiter'],
         'grid' => (int) $variables['item']['grid'],
         'graph' => (int) $variables['item']['graph'],
@@ -486,6 +488,7 @@ function recline_default_formatter_output($variables) {
         'embed' => (int) $variables['item']['embed'],
         'uuid' => $uuid,
         'datastoreStatus' => $datastoreStatus,
+        'maxSizePreview' => variable_get('file_size_preview_limit', FILE_SIZE_PREVIEW_LIMIT),
       );
       drupal_add_js($settings, 'setting');
     }
@@ -493,12 +496,13 @@ function recline_default_formatter_output($variables) {
   else {
     $module_path = drupal_get_path('module', 'recline');
     $uuid = isset($variables['item']['entity']->uuid) ? $variables['item']['entity']->uuid : FALSE;
-    $file_path = isset($variables['item']['uri']) ? file_create_url($variables['item']['uri']) : "";
-    $delimiter = isset($variables['item']['delimiter']) ? $variables['item']['delimiter'] : ",";
+    $file_path = isset($variables['item']['uri']) ? file_create_url($variables['item']['uri']) : '';
+    $delimiter = isset($variables['item']['delimiter']) ? $variables['item']['delimiter'] : ',';
+    $real_path = drupal_realpath($variables['item']['uri']);
     $settings['recline'] = array(
       'file' => $file_path,
       'fileType' => $variables['item']['filemime'],
-      'fileSize' => (file_exists($file_path)) ? filesize($file_path) : 0,
+      'fileSize' => (file_exists($real_path)) ? filesize($real_path) : 0,
       'delimiter' => $delimiter,
       'uuid' => $uuid,
       'grid' => 1,
@@ -506,6 +510,7 @@ function recline_default_formatter_output($variables) {
       'map' => 1,
       'embed' => 1,
       'datastoreStatus' => $datastoreStatus,
+      'maxSizePreview' => variable_get('file_size_preview_limit', FILE_SIZE_PREVIEW_LIMIT),
     );
     drupal_add_js($settings, 'setting');
   }
