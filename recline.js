@@ -176,14 +176,13 @@
 
     // Displays an error retrieved from the response object.
     function showRequestError (response) {
-
       // Actually dkan doesn't provide standarization over
       // error handling responses. For example: if you request
       // unexistent resources it will retrive an array with a
       // message inside.
       // Recline backends will return an object with an error.
       try {
-        var ro = JSON.parse(response);
+        var ro = (typeof response === 'string') ? JSON.parse(response) : response;
 
         if(ro.error)  {
           showError(ro.error.message)
@@ -197,7 +196,7 @@
 
     // Displays an error.
     function showError (message) {
-      $explorer.append('<div class="messages status">' + message + '</div>');
+      $explorer.html('<div class="messages status">' + message + '</div>');
     }
 
     // Creates the embed code.
