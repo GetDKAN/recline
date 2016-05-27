@@ -176,6 +176,7 @@
 
     // Displays an error retrieved from the response object.
     function showRequestError (response) {
+
       // Actually dkan doesn't provide standarization over
       // error handling responses. For example: if you request
       // unexistent resources it will retrive an array with a
@@ -196,7 +197,7 @@
 
     // Displays an error.
     function showError (message) {
-      $explorer.html('<div class="messages status">' + message + '</div>');
+      $explorer.html('<div class="messages error">' + message + '</div>');
     }
 
     // Creates the embed code.

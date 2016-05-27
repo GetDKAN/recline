@@ -47,17 +47,24 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
     }
     var dfd = new Deferred();
     var jqxhr = wrapper.search({resource_id: dataset.id, limit: 0});
-    jqxhr.done(function(results) {
-      // map ckan types to our usual types ...
-      var fields = _.map(results.result.fields, function(field) {
-        field.type = field.type in CKAN_TYPES_MAP ? CKAN_TYPES_MAP[field.type] : field.type;
-        return field;
-      });
-      var out = {
-        fields: fields,
-        useMemoryStore: false
-      };
-      dfd.resolve(out);
+
+    jqxhr.done(function(results, status, req) {
+      if(results.error) {
+        results.error.request = req;
+        dfd.reject(results);
+      } else {
+        // map ckan types to our usual types ...
+        var fields = _.map(results.result.fields, function(field) {
+          field.type = field.type in CKAN_TYPES_MAP ? CKAN_TYPES_MAP[field.type] : field.type;
+          return field;
+        });
+        var out = {
+          fields: fields,
+          useMemoryStore: false
+        };
+        dfd.resolve(out);
+      }
+
     }).fail(function(req, status){
       dfd.reject({error: {message: status, request: req}});
     });
