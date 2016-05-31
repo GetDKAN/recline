@@ -205,9 +205,23 @@
       return function(state){
         var iframeOptions = _.clone(options);
         var iframeTmpl = _.template('<iframe width="<%= width %>" height="<%= height %>" src="<%= src %>" frameborder="0"></iframe>');
+        var previewTmpl = _.template('<%= src %>');
         _.extend(iframeOptions, {src: iframeOptions.src + '#' + (state.serializedState || '')});
         var html = iframeTmpl(iframeOptions);
         $('.embed-code').text(html);
+        var preview = previewTmpl(iframeOptions);
+        $('.preview-code').text(preview);
+      };
+    }
+
+    // Creates the preview url code.
+    function getPreviewCode (options){
+      return function(state){
+        var previewOptions = _.clone(options);
+        var previewTmpl = _.template('<%= src %>');
+        _.extend(previewOptions, {src: previewOptions.src + '#' + (state.serializedState || '')});
+        var html = previewTmpl(previewOptions);
+        $('.preview-url').text(html);
       };
     }
 
