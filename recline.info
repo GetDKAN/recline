@@ -1,5 +1,5 @@
 name = Recline.js Field
-description = Creates file field for visualizing data using Recline.js
+description = QA test
 core = 7.x
 
 dependencies[] = libraries
