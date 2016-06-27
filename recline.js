@@ -1,3 +1,7 @@
+/**
+ * Drupal-specific JS helper functions and utils. Not to be confused with the
+ * Recline library, which should live in your libraries directory.
+ */
 ;(function ($) {
 
     // Constants.
