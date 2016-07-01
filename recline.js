@@ -140,6 +140,8 @@
       var file = Drupal.settings.recline.file;
       var uuid = Drupal.settings.recline.uuid;
 
+      file = (location.origin !== (new URL(file)).origin) ? '/node/' + Drupal.settings.recline.uuid + '/data' : file;
+
       // Select the backend to use
       switch(getBackend(datastoreStatus, fileType)) {
         case 'csv':
