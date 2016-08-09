@@ -455,6 +455,8 @@ function recline_default_formatter_output($variables) {
   libraries_load('backbone');
   $recline = libraries_load('recline');
   libraries_load('csv');
+  libraries_load('jsxlsx');
+  libraries_load('xls');
   libraries_load('mustache');
   libraries_load('moment');
   libraries_load('slickgrid');
