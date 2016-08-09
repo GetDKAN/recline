@@ -399,7 +399,7 @@ function recline_libraries_info() {
     'version' => '0.7.5',
     'files' => array(
       'js' => array(
-        'dist/xls.core.min.js',
+        'dist/xlsx.core.min.js',
       ),
     ),
   );
