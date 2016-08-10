@@ -413,9 +413,7 @@ function theme_recline_default_formatter($variables) {
  */
 function recline_default_formatter_output($variables) {
   $file = $variables['item'];
-
   $url = file_create_url($file['uri']);
-
   $icon = '';
 
   $format = recline_get_data_type($file['filemime']);
