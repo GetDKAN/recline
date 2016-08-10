@@ -88,4 +88,4 @@ libraries[jsxlsx][type] = libraries
 libraries[jsxlsx][download][type] = git
 libraries[jsxlsx][download][url] = "https://github.com/SheetJS/js-xlsx"
 libraries[jsxlsx][directory_name] = jsxlsx
-libraries[jsxlsx][download][tag] = "v0.7.5"
+libraries[jsxlsx][download][revision] = "53f7f6d9446ccd680c9b13992d6dcdccde49a8f6"
