@@ -17,6 +17,7 @@
       attach: function (context) {
         $explorer = $('.data-explorer');
         // Local scoped variables.
+        Drupal.settings.recline = Drupal.settings.recline || {};
         fileSize = Drupal.settings.recline.fileSize;
         fileType = Drupal.settings.recline.fileType;
         maxSizePreview = Drupal.settings.recline.maxSizePreview;
