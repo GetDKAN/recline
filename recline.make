@@ -89,3 +89,10 @@ libraries[jsxlsx][download][type] = git
 libraries[jsxlsx][download][url] = "https://github.com/SheetJS/js-xlsx"
 libraries[jsxlsx][directory_name] = jsxlsx
 libraries[jsxlsx][download][revision] = "53f7f6d9446ccd680c9b13992d6dcdccde49a8f6"
+
+# JSON VIEW
+libraries[jsonview][type] = libraries
+libraries[jsonview][download][type] = git
+libraries[jsonview][download][url] = "https://github.com/yesmeck/jquery-jsonview.git"
+libraries[jsonview][directory_name] = jsonview
+libraries[jsonview][download][revision] = "84fb68cc25e4749d2adf5af8dc3adefd80b4c430"
