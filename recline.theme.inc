@@ -4,6 +4,13 @@
  * @file
  * Recline theme functions.
  */
+
+/**
+ * File size limit for remote zip files preview.
+ * This is an arbitrary number 600000 = 600kb
+ * If you need to increase this consider that
+ * could slow down preview pages loading.
+ */
 define('MAX_SIZE_PREVIEW_ZIP', 600000);
 
 /**
@@ -48,12 +55,23 @@ function theme_recline_default_formatter($vars) {
   $output = recline_build_icon($url, $type, $file['filename'], $file['filemime'], $file['filesize'], $description);
   $request = drupal_http_request($url, array('timeout' => 2, 'method' => 'HEAD'));
 
+  // When request fail.
   if ($request->code != 200) {
+
+    // When a request fail because anything but a 405 (method not allowed)
+    // or a 400 (bad request) then display a preview unavailable message.
+    // The 405 error could happen when request something with the HEAD method.
+    // The HEAD method it's useful when you want to get the remote file
+    // headers without transfer anything.
     if ($request->code != 405 && $request->code != 400) {
       $output['preview'] = recline_preview_unavailable();
       return drupal_render($output);
     }
     else {
+
+      // If request fail b/c either a 405 or 400 error then we perform
+      // a new request using GET but setting a timeout to 10 to avoid
+      // this request get blocked because a big file download.
       $request = drupal_http_request($url, array('timeout' => 10));
       if ($request->code != 200) {
         $output['preview'] = recline_preview_unavailable();
@@ -66,7 +84,8 @@ function theme_recline_default_formatter($vars) {
       $output['preview'] = recline_preview_json($url);
       break;
     case 'csv':
-      $output['preview'] = recline_preview_csv($vars);
+    case 'xls':
+      $output['preview'] = recline_preview_multiview($vars);
       break;
     case 'geojson':
       $output['preview'] = recline_preview_geojson_leaflet($url);
@@ -241,6 +260,9 @@ function recline_preview_json($url) {
     return recline_preview_unavailable();
   }
   $decoded = drupal_json_decode($data);
+
+  // When a json is a geojson file then return a geojson preview
+  // instead of a normal json preview.
   $types = array('FeatureCollection', 'GeometryCollection', 'Feature', 'Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon');
   foreach ($types as $type) {
     foreach ($decoded as $key => $value) {
@@ -250,9 +272,8 @@ function recline_preview_json($url) {
     }
   }
   libraries_load('jsonview');
-  $module_path = drupal_get_path('module', 'recline');
   drupal_add_js(array('recline' => array('data' => $data)), 'setting');
-  drupal_add_js($module_path . '/js/jsondataview.js');
+  drupal_add_js(drupal_get_path('module', 'recline') . '/js/jsondataview.js');
   $json = array(
     'toggle_btn' => array(
       '#type' => 'markup',
@@ -316,35 +337,6 @@ function recline_preview_arcgis_feature($url) {
     ),
   );
   return $output;
-}
-
-/**
- * Gets url for geojson.io.
- */
-function recline_get_geojson_data_URL($url) {
-  $response = drupal_http_request($url);
-  if ($response->code == '200') {
-    $geojson_url = 'http://geojson.io/#data=data:application/json,' . $response->data;
-    $geojson_response = drupal_http_request($geojson_url);
-    if ($geojson_response->code == '200' && preg_match('/text\/html.*/', $geojson_response->headers['content-type']) == 1) {
-      return $geojson_url;
-    }
-  }
-  return '';
-}
-/**
- * Returns output for a geojson file.
- */
-function recline_geojson_formatter_output($uri) {
-  $url = file_create_url($uri);
-  $item['url'] = recline_get_geojson_data_URL($url);
-  if (!empty($item['url'])) {
-    $item['title'] = $item['url'];
-    return recline_format_link_api($item);
-  }
-  else {
-    return '';
-  }
 }
 
 /**
@@ -437,7 +429,7 @@ function recline_build_icon($url, $format, $filename, $filemime, $filesize, $des
 /**
  * Builds output render array for csv files
  */
-function recline_preview_csv($variables) {
+function recline_preview_multiview($variables) {
   $output = array();
   $datastoreStatus = $table = FALSE;
   $module_path = drupal_get_path('module', 'recline');
@@ -496,6 +488,8 @@ function recline_preview_csv($variables) {
   }
 
   // Necessary to fix https://github.com/mapbox/mapbox.js/issues/339
+  // Update the leaflet library and test if this bug goes away.
+  // That will involve a lot of QA but we have to do it a some point.
   if ($recline) {
     $leaflet_imgs = $recline['library path'] . '/vendor/leaflet/0.7.3/images';
     drupal_add_js('L.Icon.Default.imagePath = "/' . $leaflet_imgs . '"', 'inline');
