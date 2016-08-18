@@ -466,20 +466,27 @@ function recline_preview_multiview($variables) {
   drupal_add_js($module_path . '/backend.ckan_get.js');
   drupal_add_js($module_path . '/recline.js');
   drupal_add_css($module_path . '/recline.css');
+  $is_remote = !empty($node->field_link_remote_file);
 
-  if (!empty($item['map']) || !empty($item['grid']) || !empty($item['graph']) || !empty($item['embed'])) {
+  if ($is_remote || !empty($item['map']) || !empty($item['grid']) || !empty($item['graph']) || !empty($item['embed'])) {
     $uuid = isset($node->uuid) ? $node->uuid : FALSE;
     $file_path = isset($item['uri']) ? file_create_url($item['uri']) : '';
+    $delimiter = isset($item['delimiter']) ? $item['delimiter'] : ',';
     $real_path = drupal_realpath($item['uri']);
+    $grid = !$is_remote ? (int) $item['grid'] : 1;
+    $graph = !$is_remote ? (int) $item['graph'] : 1;
+    $map = !$is_remote ? (int) $item['map'] : 1;
+    $embed = !empty($item['embed']) ? (int) $item['embed'] : 0;
+    
     $settings['recline'] = array(
       'file' => $file_path,
       'fileType' => $item['filemime'],
       'fileSize' => (file_exists($real_path)) ? filesize($real_path) : 0,
-      'delimiter' => $item['delimiter'],
-      'grid' => (int) $item['grid'],
-      'graph' => (int) $item['graph'],
-      'map' => (int) $item['map'],
-      'embed' => (int) $item['embed'],
+      'delimiter' => $delimiter,
+      'grid' => (int) $grid,
+      'graph' => (int) $graph,
+      'map' => (int) $map,
+      'embed' => (int) $embed,
       'uuid' => $uuid,
       'datastoreStatus' => $datastoreStatus,
       'maxSizePreview' => variable_get('file_size_preview_limit', FILE_SIZE_PREVIEW_LIMIT),
