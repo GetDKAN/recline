@@ -75,3 +75,17 @@ libraries[leaflet_markercluster][download][type] = git
 libraries[leaflet_markercluster][download][url] = "https://github.com/Leaflet/Leaflet.markercluster.git"
 libraries[leaflet_markercluster][directory_name] = leaflet_markercluster
 libraries[leaflet_markercluster][download][revision] = "c5864dbfca9e71c86ac61b432862cc77f8fd8e68"
+
+# XLS BACKEND
+libraries[xls][type] = libraries
+libraries[xls][download][type] = git
+libraries[xls][download][url] = "https://github.com/NuCivic/recline.backend.xlsx"
+libraries[xls][directory_name] = xls
+libraries[xls][download][revision] = "a5d49f7305895f147c3e9a12115c2456a897f941"
+
+# SheetsJS
+libraries[jsxlsx][type] = libraries
+libraries[jsxlsx][download][type] = git
+libraries[jsxlsx][download][url] = "https://github.com/SheetJS/js-xlsx"
+libraries[jsxlsx][directory_name] = jsxlsx
+libraries[jsxlsx][download][revision] = "53f7f6d9446ccd680c9b13992d6dcdccde49a8f6"

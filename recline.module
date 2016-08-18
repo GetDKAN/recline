@@ -382,6 +382,28 @@ function recline_libraries_info() {
     ),
   );
 
+  $libraries['xls'] = array(
+    'name' => 'xls',
+    'vendor url' => 'https://github.com/NuCivic/recline.backend.xlsx',
+    'version' => '0.0.1',
+    'files' => array(
+      'js' => array(
+        'dist/recline.backend.xlsx.min.js',
+      ),
+    ),
+  );
+
+  $libraries['jsxlsx'] = array(
+    'name' => 'jsxlsx',
+    'vendor url' => 'https://github.com/SheetJS/js-xls',
+    'version' => '0.7.5',
+    'files' => array(
+      'js' => array(
+        'dist/xlsx.core.min.js',
+      ),
+    ),
+  );
+
   return $libraries;
 }
 
