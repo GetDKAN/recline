@@ -487,6 +487,8 @@ function recline_remote_mime($url) {
       CURLOPT_RETURNTRANSFER => 0,
       CURLOPT_CUSTOMREQUEST => 'GET',
       CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_CONNECTTIMEOUT => 2,
+      CURLOPT_TIMEOUT => 5,
   ));
   $result = curl_exec($curl);
   $headers = curl_getinfo($curl);
