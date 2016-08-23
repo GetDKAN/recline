@@ -493,8 +493,8 @@ function recline_remote_mime($url) {
   $result = curl_exec($curl);
   $headers = curl_getinfo($curl);
   curl_close($curl);
-  $mime = explode(';', $headers['content_type'])[0];
-  return strtolower($mime);
+  $mimes = explode(';', $headers['content_type']);
+  return strtolower($mimes[0]);
 }
 
 /**
