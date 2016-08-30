@@ -334,7 +334,7 @@
 
     // Init the multiview.
     function init () {
-      if(fileSize < maxSizePreview) {
+      if(fileSize < maxSizePreview || datastoreStatus) {
         dataset = new recline.Model.Dataset(getDatasetOptions());
         dataset.fetch().fail(showRequestError);
         views = createExplorer(dataset, state, dataExplorerSettings);
