@@ -11,6 +11,7 @@
     // Undefined variables.
     var dataset, views, datasetOptions, fileSize, fileType, router;
     var dataExplorerSettings, state, $explorer, dataExplorer, maxSizePreview;
+    var datastoreStatus;
 
     // Create drupal behavior
     Drupal.behaviors.Recline = {
