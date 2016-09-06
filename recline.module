@@ -393,8 +393,10 @@ function recline_libraries_info() {
  */
 function is_boostrap_available(){
   global $theme;
+  $themes = list_themes();
+  $base_theme = drupal_find_base_themes($themes, $theme);
 
-  if($theme == 'nuboot_radix') {
+  if($theme == 'nuboot_radix' || in_array('NuBoot Radix', $base_theme)) {
     return TRUE;
   } else {
     $re = '/bootstrap(\\.min)?\\.js/';
