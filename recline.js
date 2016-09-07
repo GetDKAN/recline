@@ -11,6 +11,7 @@
     // Undefined variables.
     var dataset, views, datasetOptions, fileSize, fileType, router;
     var dataExplorerSettings, state, $explorer, dataExplorer, maxSizePreview;
+    var datastoreStatus;
 
     // Create drupal behavior
     Drupal.behaviors.Recline = {
@@ -21,6 +22,7 @@
         fileSize = Drupal.settings.recline.fileSize;
         fileType = Drupal.settings.recline.fileType;
         maxSizePreview = Drupal.settings.recline.maxSizePreview;
+        datastoreStatus = Drupal.settings.recline.datastoreStatus;
 
         dataExplorerSettings = {
           grid: Drupal.settings.recline.grid,
@@ -136,12 +138,12 @@
     // Returns the dataset configuration.
     function getDatasetOptions () {
       var datasetOptions = {};
-      var datastoreStatus = Drupal.settings.recline.datastoreStatus;
       var delimiter = Drupal.settings.recline.delimiter;
       var file = Drupal.settings.recline.file;
       var uuid = Drupal.settings.recline.uuid;
 
-      file = (location.origin !== (new URL(file)).origin) ? '/node/' + Drupal.settings.recline.uuid + '/data' : file;
+     // Get correct file location, make sure not local
+     file = (getOrigin(window.location) !== getOrigin(file)) ? '/node/' + Drupal.settings.recline.uuid + '/data' : file;
 
       // Select the backend to use
       switch(getBackend(datastoreStatus, fileType)) {
@@ -176,6 +178,27 @@
       }
 
       return datasetOptions;
+    }
+
+     // Correct for fact that IE does not provide .origin
+    function getOrigin(u) {
+      var url = parseURL(u);
+        return url.protocol + '//' + url.hostname + (url.port ? (':' + url.port) : '');
+    }
+
+    // Parse a simple URL string to get its properties
+    function parseURL(url) {
+      var parser = document.createElement('a');
+      parser.href = url;
+      return {
+        protocol: parser.protocol,
+        hostname: parser.hostname,
+        port: parser.port,
+        pathname: parser.pathname,
+        search: parser.search,
+        hash: parser.hash,
+        host: parser.host
+      }
     }
 
     // Retrieve a backend given a file type and and a datastore status.
@@ -349,7 +372,7 @@
 
     // Init the multiview.
     function init () {
-      if(fileSize < maxSizePreview) {
+      if(fileSize < maxSizePreview || datastoreStatus) {
         dataset = new recline.Model.Dataset(getDatasetOptions());
         dataset.fetch().fail(showRequestError);
         views = createExplorer(dataset, state, dataExplorerSettings);
