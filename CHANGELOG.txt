@@ -2,6 +2,7 @@
 ------------------
 Remove unneeded fields UI dependency.
 Upgraded included version of Recline.js library.
+Add a check to see if the bootstrap library is already loaded before adding it.
 
 7.x-1.1 2014-06-27
 ------------------
