@@ -24,7 +24,6 @@ define('MAX_SIZE_PREVIEW_ZIP', 600000);
  */
 function theme_recline_default_formatter($vars) {
   $type = null;
-
   if (isset($vars['item']['entity']->field_format['und'][0]['tid'])) {
     $format = taxonomy_term_load($vars['item']['entity']->field_format['und'][0]['tid']);
     $type = $format->name;
@@ -53,31 +52,33 @@ function theme_recline_default_formatter($vars) {
   }
   $description = isset($file['description']) ? $file['description'] : '';
   $output = recline_build_icon($url, $type, $file['filename'], $file['filemime'], $file['filesize'], $description);
-  $request = drupal_http_request($url, array('timeout' => 2, 'method' => 'HEAD'));
 
-  // When request fail.
-  if ($request->code != 200) {
+  if(!$type) {
+    $request = drupal_http_request($url, array('timeout' => 2, 'method' => 'HEAD'));
+    // When request fail.
+    if ($request->code != 200) {
 
-    // When a request fail because anything but a 405 (method not allowed)
-    // or a 400 (bad request) then display a preview unavailable message.
-    // The 405 error could happen when request something with the HEAD method.
-    // The HEAD method it's useful when you want to get the remote file
-    // headers without transfer anything.
-    if ($request->code != 405 && $request->code != 400) {
-      $output['preview'] = recline_preview_unavailable();
-      return drupal_render($output);
-    }
-    else {
-
-      // If request fail b/c either a 405 or 400 error then we perform
-      // a new request using GET but setting a timeout to 10 to avoid
-      // this request get blocked because a big file download.
-      $request = drupal_http_request($url, array('timeout' => 10));
-      if ($request->code != 200) {
+      // When a request fail because anything but a 405 (method not allowed)
+      // or a 400 (bad request) then display a preview unavailable message.
+      // The 405 error could happen when request something with the HEAD method.
+      // The HEAD method it's useful when you want to get the remote file
+      // headers without transfer anything.
+      if ($request->code != 405 && $request->code != 400) {
         $output['preview'] = recline_preview_unavailable();
         return drupal_render($output);
       }
-    }
+      else {
+
+        // If request fail b/c either a 405 or 400 error then we perform
+        // a new request using GET but setting a timeout to 10 to avoid
+        // this request get blocked because a big file download.
+        $request = drupal_http_request($url, array('timeout' => 10));
+        if ($request->code != 200) {
+          $output['preview'] = recline_preview_unavailable();
+          return drupal_render($output);
+        }
+      }
+    }    
   }
   switch ($type) {
     case 'json':
@@ -467,15 +468,17 @@ function recline_preview_multiview($variables) {
   drupal_add_js($module_path . '/recline.js');
   drupal_add_css($module_path . '/recline.css');
   $is_remote = !empty($node->field_link_remote_file);
+  $is_uploaded = !empty($node->field_upload);
+  $show_all = $is_uploaded && empty($item['map']) && empty($item['grid']) && empty($item['graph']);
 
-  if ($is_remote || !empty($item['map']) || !empty($item['grid']) || !empty($item['graph']) || !empty($item['embed'])) {
+  if ($show_all || $is_remote || !empty($item['map']) || !empty($item['grid']) || !empty($item['graph']) || !empty($item['embed'])) {
     $uuid = isset($node->uuid) ? $node->uuid : FALSE;
     $file_path = isset($item['uri']) ? file_create_url($item['uri']) : '';
     $delimiter = isset($item['delimiter']) ? $item['delimiter'] : ',';
     $real_path = drupal_realpath($item['uri']);
-    $grid = !$is_remote ? (int) $item['grid'] : 1;
-    $graph = !$is_remote ? (int) $item['graph'] : 1;
-    $map = !$is_remote ? (int) $item['map'] : 1;
+    $grid = !$is_remote && !$show_all ? (int) $item['grid'] : 1;
+    $graph = !$is_remote && !$show_all ? (int) $item['graph'] : 1;
+    $map = !$is_remote && !$show_all ? (int) $item['map'] : 1;
     $embed = !empty($item['embed']) ? (int) $item['embed'] : 0;
     
     $settings['recline'] = array(
