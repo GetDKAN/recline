@@ -37,7 +37,7 @@ function theme_recline_default_formatter($vars) {
   }
 
   if($url) {
-    $type = (!$type || $type == 'data') ? recline_get_data_type(recline_remote_mime($url)) : $type;        
+    $type = (!$type || $type == 'data') ? recline_get_data_type(remote_file_source_mime($url)) : $type;
   }
 
   $default_file = array(
@@ -78,7 +78,7 @@ function theme_recline_default_formatter($vars) {
           return drupal_render($output);
         }
       }
-    }    
+    }
   }
   switch ($type) {
     case 'json':
@@ -95,7 +95,7 @@ function theme_recline_default_formatter($vars) {
       if (substr($vars['item']['uri'], 0, 4) != 'http') {
         $output['preview'] = recline_preview_zip($vars['item']['uri']);
       }
-      elseif ($request->headers['content-length'] < MAX_SIZE_PREVIEW_ZIP) {
+      else {
         $ch = curl_init($url);
         $filename = file_directory_temp() . '/tmp-' . rand(100000, 999999) . '.zip';
         $fp = fopen($filename, 'w');
@@ -105,9 +105,6 @@ function theme_recline_default_formatter($vars) {
         curl_close($ch);
         fclose($fp);
         $output['preview'] = recline_preview_zip($filename);
-      }
-      else {
-        $output['preview'] = recline_preview_unavailable();
       }
       break;
     case 'html':
@@ -436,7 +433,7 @@ function recline_preview_multiview($variables) {
   $module_path = drupal_get_path('module', 'recline');
   $item = $variables['item'];
   $node = $item['entity'];
-  $embed = theme('recline_embed_button', array('node' => $node));  
+  $embed = theme('recline_embed_button', array('node' => $node));
 
   // See if datastore is loaded, if so, prepare recline to view from it.
   if (module_exists('dkan_datastore_api') && module_exists('feeds_flatstore_processor') && function_exists('dkan_datastore_api_get_feeds_source')) {
@@ -480,7 +477,7 @@ function recline_preview_multiview($variables) {
     $graph = !$is_remote && !$show_all ? (int) $item['graph'] : 1;
     $map = !$is_remote && !$show_all ? (int) $item['map'] : 1;
     $embed = !empty($item['embed']) ? (int) $item['embed'] : 0;
-    
+
     $settings['recline'] = array(
       'file' => $file_path,
       'fileType' => $item['filemime'],
@@ -516,7 +513,7 @@ function recline_preview_multiview($variables) {
     '#type' => 'markup',
     '#markup' => '<span class="data-explorer"></span>',
   );
-  return $output;  
+  return $output;
 }
 
 /**
