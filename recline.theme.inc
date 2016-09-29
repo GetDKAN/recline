@@ -96,15 +96,21 @@ function theme_recline_default_formatter($vars) {
         $output['preview'] = recline_preview_zip($vars['item']['uri']);
       }
       else {
-        $ch = curl_init($url);
-        $filename = file_directory_temp() . '/tmp-' . rand(100000, 999999) . '.zip';
-        $fp = fopen($filename, 'w');
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_exec($ch);
-        curl_close($ch);
-        fclose($fp);
-        $output['preview'] = recline_preview_zip($filename);
+        $headers = remote_file_source_headers($url);
+        if ($headers['download_content_length'] >= MAX_SIZE_PREVIEW_ZIP) {
+          $ch = curl_init($url);
+          $filename = file_directory_temp() . '/tmp-' . rand(100000, 999999) . '.zip';
+          $fp = fopen($filename, 'w');
+          curl_setopt($ch, CURLOPT_FILE, $fp);
+          curl_setopt($ch, CURLOPT_HEADER, 0);
+          curl_exec($ch);
+          curl_close($ch);
+          fclose($fp);
+          $output['preview'] = recline_preview_zip($filename);
+        }
+        else {
+          $output['preview'] = recline_preview_unavailable();
+        }
       }
       break;
     case 'html':
@@ -211,7 +217,7 @@ function recline_preview_wms($url, $titles, $images, $north, $east, $south, $wes
 function recline_format_image($url) {
   return array(
     '#type' => 'markup',
-    '#markup' => '<img src="' . $url . '" alt="image preview"/>',
+    '#markup' => '<div  id="recline-image-preview"><img src="' . $url . '" alt="image preview"/></div>',
   );
 }
 
@@ -301,7 +307,7 @@ function recline_prettify_xml($url) {
   $xml = array(
     'data_xml' => array(
       '#type' => 'markup',
-      '#markup' => '<pre><code class="hljs xml">' . $data . '</code></pre>',
+      '#markup' => '<div id="recline-xml-preview"><pre><code class="hljs xml">' . $data . '</code></pre></div>',
     ),
   );
   return $xml;
