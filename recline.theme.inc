@@ -36,10 +36,6 @@ function theme_recline_default_formatter($vars) {
     $url = file_create_url($vars['item']['uri']);
   }
 
-  if($url) {
-    $type = (!$type || $type == 'data') ? recline_get_data_type(remote_file_source_mime($url)) : $type;
-  }
-
   $default_file = array(
     'filemime' => $type,
     'filesize' => '',
@@ -96,13 +92,20 @@ function theme_recline_default_formatter($vars) {
         $output['preview'] = recline_preview_zip($vars['item']['uri']);
       }
       else {
-        $headers = remote_file_source_headers($url);
-        if ($headers['download_content_length'] >= MAX_SIZE_PREVIEW_ZIP) {
+        if (!isset($request)) {
+          $request = drupal_http_request($url, array('timeout' => 10));
+        }
+        if ($request->headers['content-length'] < MAX_SIZE_PREVIEW_ZIP) {
+          $ch = curl_init($url);
+          $filename = file_directory_temp() . "/tmp-" . rand(100000, 999999) . ".zip";
+          $fp = fopen($filename, "w");
           $ch = curl_init($url);
           $filename = file_directory_temp() . '/tmp-' . rand(100000, 999999) . '.zip';
           $fp = fopen($filename, 'w');
+
           curl_setopt($ch, CURLOPT_FILE, $fp);
           curl_setopt($ch, CURLOPT_HEADER, 0);
+
           curl_exec($ch);
           curl_close($ch);
           fclose($fp);

@@ -5,6 +5,5 @@ version = 7.x-1.x
 
 dependencies[] = libraries
 dependencies[] = file
-dependencies[] = remote_file_source
 scripts[] = js/jsondataview.js
 scripts[] = js/restdataview.js
