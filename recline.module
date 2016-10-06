@@ -480,23 +480,6 @@ function recline_get_data_type($mimetype) {
   return $type;
 }
 
-function recline_remote_mime($url) {
-  $curl = curl_init($url);
-  curl_setopt_array($curl, array(
-      CURLOPT_NOBODY => true,
-      CURLOPT_RETURNTRANSFER => 0,
-      CURLOPT_CUSTOMREQUEST => 'GET',
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_CONNECTTIMEOUT => 2,
-      CURLOPT_TIMEOUT => 5,
-  ));
-  $result = curl_exec($curl);
-  $headers = curl_getinfo($curl);
-  curl_close($curl);
-  $mime = explode(';', $headers['content_type'])[0];
-  return strtolower($mime);
-}
-
 /**
  * Returns array of delimiters.
  */
