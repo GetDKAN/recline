@@ -442,8 +442,7 @@ function recline_preview_multiview($variables) {
   $module_path = drupal_get_path('module', 'recline');
   $item = $variables['item'];
   $node = $item['entity'];
-  $embed = theme('recline_embed_button', array('node' => $node));
-
+  $embed_markup = theme('recline_embed_button', array('node' => $node));
   // See if datastore is loaded, if so, prepare recline to view from it.
   if (module_exists('dkan_datastore_api') && module_exists('feeds_flatstore_processor') && function_exists('dkan_datastore_api_get_feeds_source')) {
     $source_id = dkan_datastore_api_get_feeds_source($node->nid);
@@ -514,7 +513,7 @@ function recline_preview_multiview($variables) {
   if (!empty($settings['recline']['embed'])) {
     $output['embed'] = array(
       '#type' => 'markup',
-      '#markup' => $embed,
+      '#markup' => $embed_markup,
     );
   }
 
