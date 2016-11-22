@@ -28,6 +28,17 @@ function theme_recline_default_formatter($vars) {
     $format = taxonomy_term_load($vars['item']['entity']->field_format['und'][0]['tid']);
     $type = $format->name;
   }
+  $default_file = array(
+    'filemime' => $type,
+    'filesize' => '',
+    'filename' => '',
+    'description' => '',
+  );
+
+  $file = isset($vars['item']['fid']) ? file_load($vars['item']['fid']) : $default_file;
+  if (is_object($file)) {
+    $file = (array) $file;
+  }
 
   if (isset($vars['item']['url'])) {
     $url = $vars['item']['url'];
@@ -35,17 +46,11 @@ function theme_recline_default_formatter($vars) {
   elseif (isset($vars['item']['uri'])) {
     $url = file_create_url($vars['item']['uri']);
   }
-
-  $default_file = array(
-    'filemime' => $type,
-    'filesize' => '',
-    'filename' => $url,
-    'description' => '',
-  );
-  $file = isset($vars['item']['fid']) ? $vars['item'] : $default_file;
-  if (is_object($file)) {
-    $file = (array) $file;
+  elseif (isset($vars['item']['fid'])) {
+    $url = file_create_url($file['uri']);
   }
+
+  $file['filename'] = isset($file['filename']) ? $file['filename'] : $url;
   $description = isset($file['description']) ? $file['description'] : '';
   $output = recline_build_icon($url, $type, $file['filename'], $file['filemime'], $file['filesize'], $description);
 
@@ -441,6 +446,13 @@ function recline_preview_multiview($variables) {
   $datastoreStatus = $table = FALSE;
   $module_path = drupal_get_path('module', 'recline');
   $item = $variables['item'];
+
+  //Check problem loading file
+  if (!isset($item['uri']) && $item['fid']) {
+    $file = file_load($item['fid']);
+    $file = (array)$file;
+    $item = array_replace($item, $file);
+  }
   $node = $item['entity'];
   $embed_markup = theme('recline_embed_button', array('node' => $node));
   // See if datastore is loaded, if so, prepare recline to view from it.
