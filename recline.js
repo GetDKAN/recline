@@ -155,7 +155,7 @@
           break;
         case 'ckan':
           datasetOptions = {
-            endpoint: '/api',
+            endpoint: 'api',
             id: uuid,
             backend: 'ckan'
           };

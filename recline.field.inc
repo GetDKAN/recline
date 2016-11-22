@@ -176,7 +176,7 @@ function recline_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     }
     // If file is already uploaded, but removed.
     elseif (isset($element['#entity']->{$element['#field_name']}) && $element['#entity']->{$element['#field_name']}) {
-      $default_value = $element['#entity']->{$element['#field_name']}[$element['#language']][$delta][$view];
+      $default_value = isset($element['#entity']->{$element['#field_name']}[$element['#language']][$delta][$view]) ? $element['#entity']->{$element['#field_name']}[$element['#language']][$delta][$view] : '';
     }
     // If selections are made, then file is uploaded.
     elseif (isset($elements[$delta]['#default_value']['view'][$view])) {
