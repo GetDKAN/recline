@@ -24,6 +24,15 @@ define('MAX_SIZE_PREVIEW_ZIP', 600000);
  */
 function theme_recline_default_formatter($vars) {
   $type = null;
+
+  // Embedded view doesn't use html.tpl.php template
+  // so we need to add bootstrap by hand.
+  if (recline_embedded()) {
+    $recline_path = libraries_get_path('recline');
+    drupal_add_js($recline_path . '/vendor/bootstrap/3.2.0/js/bootstrap.js');
+    drupal_add_css($recline_path . '/vendor/bootstrap/3.2.0/js/bootstrap.css');
+  }
+
   if (isset($vars['item']['entity']->field_format['und'][0]['tid'])) {
     $format = taxonomy_term_load($vars['item']['entity']->field_format['und'][0]['tid']);
     $type = $format->name;
