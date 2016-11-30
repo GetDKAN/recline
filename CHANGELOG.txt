@@ -1,6 +1,6 @@
 7.x-1.x
 --------
-- Improve bootstrap available check.
+- Improved check used to determine if bootstrap is available.
 
 7.x-1.12.x
 ----------
