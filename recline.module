@@ -11,6 +11,35 @@ define('FILE_SIZE_PREVIEW_LIMIT', 3000000);
 module_load_include('inc', 'recline', 'recline.field');
 
 /**
+ * Check if a preview it's embedded or not.
+ */
+function recline_embedded() {
+  return menu_get_item(current_path())['path'] === 'node/%/recline-embed';
+}
+
+/**
+ * Check if bootstrap is already added.
+ */
+function is_boostrap_available(){
+  global $theme;
+  $themes = list_themes();
+  $base_theme = drupal_find_base_themes($themes, $theme);
+
+  if($theme == 'nuboot_radix' || in_array('NuBoot Radix', $base_theme)) {
+    return TRUE;
+  } else {
+    $re = '/bootstrap(\\.min)?\\.js/';
+    $js = array_keys(drupal_add_js());
+    foreach ($js as $j) {
+      if(preg_match($re, $j)) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function recline_menu() {
@@ -189,11 +218,6 @@ function recline_libraries_info() {
       ),
     ),
   );
-
-  if(!is_boostrap_available()) {
-    $libraries['recline']['files']['js'][] = 'vendor/bootstrap/3.2.0/js/bootstrap.js';
-    $libraries['recline']['files']['css'][] = 'vendor/bootstrap/3.2.0/css/bootstrap.css';
-  }
 
   $libraries['lodash'] = array(
     'name' => 'lodash',
@@ -436,6 +460,11 @@ function recline_libraries_info() {
     ),
   );
 
+  if(!is_boostrap_available()) {
+    $libraries['recline']['files']['js'][] = 'vendor/bootstrap/3.2.0/js/bootstrap.js';
+    $libraries['recline']['files']['css'][] = 'vendor/bootstrap/3.2.0/css/bootstrap.css';
+  }
+
   return $libraries;
 }
 
@@ -458,28 +487,6 @@ function recline_library() {
   );
 
   return $libraries;
-}
-
-/**
- * Check if bootstrap is already added.
- */
-function is_boostrap_available(){
-  global $theme;
-  $themes = list_themes();
-  $base_theme = drupal_find_base_themes($themes, $theme);
-
-  if($theme == 'nuboot_radix' || in_array('NuBoot Radix', $base_theme)) {
-    return TRUE;
-  } else {
-    $re = '/bootstrap(\\.min)?\\.js/';
-    $js = array_keys(drupal_add_js());
-    foreach ($js as $j) {
-      if(preg_match($re, $j)) {
-        return TRUE;
-      }
-    }
-    return FALSE;
-  }
 }
 
 /**
