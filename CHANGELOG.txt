@@ -1,3 +1,7 @@
+7.x-1.x
+--------
+- Improve bootstrap available check.
+
 7.x-1.12.x
 ----------
 - Make recline previews work on subdir paths.
