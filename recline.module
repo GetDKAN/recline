@@ -20,41 +20,22 @@ function recline_embedded() {
 /**
  * Check if bootstrap is already added.
  */
-function recline_boostrap_available(){
+function is_boostrap_available(){
   global $theme;
   $themes = list_themes();
   $base_theme = drupal_find_base_themes($themes, $theme);
-  $re = '/bootstrap(\\.min)?\\.js/';
-  $js = array_keys(drupal_add_js());
-  foreach ($js as $j) {
-    if(preg_match($re, $j)) {
-      return TRUE;
+
+  if($theme == 'nuboot_radix' || in_array('NuBoot Radix', $base_theme)) {
+    return TRUE;
+  } else {
+    $re = '/bootstrap(\\.min)?\\.js/';
+    $js = array_keys(drupal_add_js());
+    foreach ($js as $j) {
+      if(preg_match($re, $j)) {
+        return TRUE;
+      }
     }
-  }
-  return FALSE;
-}
-
-/**
- * Implements hook_js_alter().
- */
-function recline_js_alter(&$javascript) {
-
-  // Add boostrap js file if it's not already added.
-  if (!recline_boostrap_available()) {
-    $path = libraries_get_path('recline') . '/vendor/bootstrap/3.2.0/js/bootstrap.js';
-    $javascript[$path]['data'] = $path;
-  }
-}
-
-/**
- * Implements hook_css_alter().
- */
-function recline_css_alter(&$css) {
-
-  // Add boostrap css file if it's not already added.
-  if (!recline_boostrap_available()) {
-    $path = libraries_get_path('recline') . '/vendor/bootstrap/3.2.0/css/bootstrap.css';
-    $css[$path]['data'] = $path;
+    return FALSE;
   }
 }
 
@@ -478,6 +459,11 @@ function recline_libraries_info() {
       ),
     ),
   );
+
+  if(!is_boostrap_available()) {
+    $libraries['recline']['files']['js'][] = 'vendor/bootstrap/3.2.0/js/bootstrap.js';
+    $libraries['recline']['files']['css'][] = 'vendor/bootstrap/3.2.0/css/bootstrap.css';
+  }
 
   return $libraries;
 }

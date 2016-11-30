@@ -30,7 +30,7 @@ function theme_recline_default_formatter($vars) {
   if (recline_embedded()) {
     $recline_path = libraries_get_path('recline');
     drupal_add_js($recline_path . '/vendor/bootstrap/3.2.0/js/bootstrap.js');
-    drupal_add_css($recline_path . '/vendor/bootstrap/3.2.0/js/bootstrap.css');
+    drupal_add_css($recline_path . '/vendor/bootstrap/3.2.0/css/bootstrap.css');
   }
 
   if (isset($vars['item']['entity']->field_format['und'][0]['tid'])) {
