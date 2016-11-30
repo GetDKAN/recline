@@ -14,6 +14,17 @@
 define('MAX_SIZE_PREVIEW_ZIP', 600000);
 
 /**
+ * Timeout limit for HEAD HTTP requests.
+ */
+define('RECLINE_REQUEST_TIMEOUT_HEAD', 2);
+
+/**
+ * Timeout limit for GET HTTP requests.
+ */
+define('RECLINE_REQUEST_TIMEOUT_GET', 10);
+
+
+/**
  * Returns HTML for an recline field formatter.
  *
  * @param array $variables
@@ -93,14 +104,23 @@ function theme_recline_default_formatter($vars) {
       $output['preview'] = recline_preview_geojson_leaflet($url);
       break;
     case 'zip':
+      $filename = FALSE;
+
       if (substr($vars['item']['uri'], 0, 4) != 'http') {
-        $output['preview'] = recline_preview_zip($vars['item']['uri']);
+        $filename = $vars['item']['uri'];
       }
       else {
+        // Make sure we have the information about the remote file.
         if (!isset($request)) {
-          $request = drupal_http_request($url, array('timeout' => 10));
+          // TODO we probably want to improve this by using the
+          // GetRemoteFileInfo helper class from dkan_dataset module.
+          $request = drupal_http_request($url, array('timeout' => RECLINE_REQUEST_TIMEOUT_HEAD, 'method' => 'HEAD'));
         }
-        if ($request->headers['content-length'] < MAX_SIZE_PREVIEW_ZIP) {
+
+        // Make sure that the request was successful and the target zip file
+        // does not excced the maximum allowed for previews.
+        if (isset($request->headers['content-length'])
+          && $request->headers['content-length'] < MAX_SIZE_PREVIEW_ZIP) {
           $ch = curl_init($url);
           $filename = file_directory_temp() . "/tmp-" . rand(100000, 999999) . ".zip";
           $fp = fopen($filename, "w");
@@ -114,13 +134,19 @@ function theme_recline_default_formatter($vars) {
           curl_exec($ch);
           curl_close($ch);
           fclose($fp);
-          $output['preview'] = recline_preview_zip($filename);
-        }
-        else {
-          $output['preview'] = recline_preview_unavailable();
         }
       }
+
+      // If a suitable file is found then passe it threw the preview function,
+      // else default to unavaiable.
+      if ($filename) {
+        $output['preview'] = recline_preview_zip($filename);
+      }
+      else {
+        $output['preview'] = recline_preview_unavailable();
+      }
       break;
+
     case 'html':
       $output['preview'] = recline_format_link_api($url);
       break;
