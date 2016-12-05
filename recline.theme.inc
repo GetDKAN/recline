@@ -24,9 +24,29 @@ define('MAX_SIZE_PREVIEW_ZIP', 600000);
  */
 function theme_recline_default_formatter($vars) {
   $type = null;
+
+  // Embedded view doesn't use html.tpl.php template
+  // so we need to add bootstrap by hand.
+  if (recline_embedded()) {
+    $recline_path = libraries_get_path('recline');
+    drupal_add_js($recline_path . '/vendor/bootstrap/3.2.0/js/bootstrap.js');
+    drupal_add_css($recline_path . '/vendor/bootstrap/3.2.0/css/bootstrap.css');
+  }
+
   if (isset($vars['item']['entity']->field_format['und'][0]['tid'])) {
     $format = taxonomy_term_load($vars['item']['entity']->field_format['und'][0]['tid']);
     $type = $format->name;
+  }
+  $default_file = array(
+    'filemime' => $type,
+    'filesize' => '',
+    'filename' => '',
+    'description' => '',
+  );
+
+  $file = isset($vars['item']['fid']) ? file_load($vars['item']['fid']) : $default_file;
+  if (is_object($file)) {
+    $file = (array) $file;
   }
 
   if (isset($vars['item']['url'])) {
@@ -35,21 +55,11 @@ function theme_recline_default_formatter($vars) {
   elseif (isset($vars['item']['uri'])) {
     $url = file_create_url($vars['item']['uri']);
   }
-
-  if($url) {
-    $type = (!$type || $type == 'data') ? recline_get_data_type(recline_remote_mime($url)) : $type;        
+  elseif (isset($vars['item']['fid'])) {
+    $url = file_create_url($file['uri']);
   }
 
-  $default_file = array(
-    'filemime' => $type,
-    'filesize' => '',
-    'filename' => $url,
-    'description' => '',
-  );
-  $file = isset($vars['item']['fid']) ? $vars['item'] : $default_file;
-  if (is_object($file)) {
-    $file = (array) $file;
-  }
+  $file['filename'] = isset($file['filename']) ? $file['filename'] : $url;
   $description = isset($file['description']) ? $file['description'] : '';
   $output = recline_build_icon($url, $type, $file['filename'], $file['filemime'], $file['filesize'], $description);
 
@@ -78,7 +88,7 @@ function theme_recline_default_formatter($vars) {
           return drupal_render($output);
         }
       }
-    }    
+    }
   }
   switch ($type) {
     case 'json':
@@ -95,19 +105,29 @@ function theme_recline_default_formatter($vars) {
       if (substr($vars['item']['uri'], 0, 4) != 'http') {
         $output['preview'] = recline_preview_zip($vars['item']['uri']);
       }
-      elseif ($request->headers['content-length'] < MAX_SIZE_PREVIEW_ZIP) {
-        $ch = curl_init($url);
-        $filename = file_directory_temp() . '/tmp-' . rand(100000, 999999) . '.zip';
-        $fp = fopen($filename, 'w');
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_exec($ch);
-        curl_close($ch);
-        fclose($fp);
-        $output['preview'] = recline_preview_zip($filename);
-      }
       else {
-        $output['preview'] = recline_preview_unavailable();
+        if (!isset($request)) {
+          $request = drupal_http_request($url, array('timeout' => 10));
+        }
+        if ($request->headers['content-length'] < MAX_SIZE_PREVIEW_ZIP) {
+          $ch = curl_init($url);
+          $filename = file_directory_temp() . "/tmp-" . rand(100000, 999999) . ".zip";
+          $fp = fopen($filename, "w");
+          $ch = curl_init($url);
+          $filename = file_directory_temp() . '/tmp-' . rand(100000, 999999) . '.zip';
+          $fp = fopen($filename, 'w');
+
+          curl_setopt($ch, CURLOPT_FILE, $fp);
+          curl_setopt($ch, CURLOPT_HEADER, 0);
+
+          curl_exec($ch);
+          curl_close($ch);
+          fclose($fp);
+          $output['preview'] = recline_preview_zip($filename);
+        }
+        else {
+          $output['preview'] = recline_preview_unavailable();
+        }
       }
       break;
     case 'html':
@@ -214,7 +234,7 @@ function recline_preview_wms($url, $titles, $images, $north, $east, $south, $wes
 function recline_format_image($url) {
   return array(
     '#type' => 'markup',
-    '#markup' => '<img src="' . $url . '" alt="image preview"/>',
+    '#markup' => '<div  id="recline-image-preview"><img src="' . $url . '" alt="image preview"/></div>',
   );
 }
 
@@ -304,7 +324,7 @@ function recline_prettify_xml($url) {
   $xml = array(
     'data_xml' => array(
       '#type' => 'markup',
-      '#markup' => '<pre><code class="hljs xml">' . $data . '</code></pre>',
+      '#markup' => '<div id="recline-xml-preview"><pre><code class="hljs xml">' . $data . '</code></pre></div>',
     ),
   );
   return $xml;
@@ -435,9 +455,15 @@ function recline_preview_multiview($variables) {
   $datastoreStatus = $table = FALSE;
   $module_path = drupal_get_path('module', 'recline');
   $item = $variables['item'];
-  $node = $item['entity'];
-  $embed = theme('recline_embed_button', array('node' => $node));  
 
+  //Check problem loading file
+  if (!isset($item['uri']) && $item['fid']) {
+    $file = file_load($item['fid']);
+    $file = (array)$file;
+    $item = array_replace($item, $file);
+  }
+  $node = $item['entity'];
+  $embed_markup = theme('recline_embed_button', array('node' => $node));
   // See if datastore is loaded, if so, prepare recline to view from it.
   if (module_exists('dkan_datastore_api') && module_exists('feeds_flatstore_processor') && function_exists('dkan_datastore_api_get_feeds_source')) {
     $source_id = dkan_datastore_api_get_feeds_source($node->nid);
@@ -480,7 +506,7 @@ function recline_preview_multiview($variables) {
     $graph = !$is_remote && !$show_all ? (int) $item['graph'] : 1;
     $map = !$is_remote && !$show_all ? (int) $item['map'] : 1;
     $embed = !empty($item['embed']) ? (int) $item['embed'] : 0;
-    
+
     $settings['recline'] = array(
       'file' => $file_path,
       'fileType' => $item['filemime'],
@@ -508,7 +534,7 @@ function recline_preview_multiview($variables) {
   if (!empty($settings['recline']['embed'])) {
     $output['embed'] = array(
       '#type' => 'markup',
-      '#markup' => $embed,
+      '#markup' => $embed_markup,
     );
   }
 
@@ -516,7 +542,7 @@ function recline_preview_multiview($variables) {
     '#type' => 'markup',
     '#markup' => '<span class="data-explorer"></span>',
   );
-  return $output;  
+  return $output;
 }
 
 /**
