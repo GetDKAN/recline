@@ -7,11 +7,23 @@
 
 /**
  * File size limit for remote zip files preview.
+ *
  * This is an arbitrary number 600000 = 600kb
  * If you need to increase this consider that
  * could slow down preview pages loading.
  */
 define('MAX_SIZE_PREVIEW_ZIP', 600000);
+
+/**
+ * Timeout limit for HEAD HTTP requests.
+ */
+define('RECLINE_REQUEST_TIMEOUT_HEAD', 2);
+
+/**
+ * Timeout limit for GET HTTP requests.
+ */
+define('RECLINE_REQUEST_TIMEOUT_GET', 10);
+
 
 /**
  * Returns HTML for an recline field formatter.
@@ -64,7 +76,7 @@ function theme_recline_default_formatter($vars) {
   $output = recline_build_icon($url, $type, $file['filename'], $file['filemime'], $file['filesize'], $description);
 
   if(!$type) {
-    $request = drupal_http_request($url, array('timeout' => 2, 'method' => 'HEAD'));
+    $request = drupal_http_request($url, array('timeout' => RECLINE_REQUEST_TIMEOUT_HEAD, 'method' => 'HEAD'));
     // When request fail.
     if ($request->code != 200) {
 
@@ -82,7 +94,7 @@ function theme_recline_default_formatter($vars) {
         // If request fail b/c either a 405 or 400 error then we perform
         // a new request using GET but setting a timeout to 10 to avoid
         // this request get blocked because a big file download.
-        $request = drupal_http_request($url, array('timeout' => 10));
+        $request = drupal_http_request($url, array('timeout' => RECLINE_REQUEST_TIMEOUT_GET));
         if ($request->code != 200) {
           $output['preview'] = recline_preview_unavailable();
           return drupal_render($output);
@@ -102,14 +114,23 @@ function theme_recline_default_formatter($vars) {
       $output['preview'] = recline_preview_geojson_leaflet($url);
       break;
     case 'zip':
+      $filename = FALSE;
+
       if (substr($vars['item']['uri'], 0, 4) != 'http') {
-        $output['preview'] = recline_preview_zip($vars['item']['uri']);
+        $filename = $vars['item']['uri'];
       }
       else {
+        // Make sure we have the information about the remote file.
         if (!isset($request)) {
-          $request = drupal_http_request($url, array('timeout' => 10));
+          // TODO we probably want to improve this by using the
+          // GetRemoteFileInfo helper class from dkan_dataset module.
+          $request = drupal_http_request($url, array('timeout' => RECLINE_REQUEST_TIMEOUT_HEAD, 'method' => 'HEAD'));
         }
-        if ($request->headers['content-length'] < MAX_SIZE_PREVIEW_ZIP) {
+
+        // Make sure that the request was successful and the target zip file
+        // does not excced the maximum allowed for previews.
+        if (isset($request->headers['content-length'])
+          && $request->headers['content-length'] < MAX_SIZE_PREVIEW_ZIP) {
           $ch = curl_init($url);
           $filename = file_directory_temp() . "/tmp-" . rand(100000, 999999) . ".zip";
           $fp = fopen($filename, "w");
@@ -123,13 +144,19 @@ function theme_recline_default_formatter($vars) {
           curl_exec($ch);
           curl_close($ch);
           fclose($fp);
-          $output['preview'] = recline_preview_zip($filename);
-        }
-        else {
-          $output['preview'] = recline_preview_unavailable();
         }
       }
+
+      // If a suitable file is found then passe it threw the preview function,
+      // else default to unavaiable.
+      if ($filename) {
+        $output['preview'] = recline_preview_zip($filename);
+      }
+      else {
+        $output['preview'] = recline_preview_unavailable();
+      }
       break;
+
     case 'html':
       $output['preview'] = recline_format_link_api($url);
       break;
@@ -156,7 +183,7 @@ function theme_recline_default_formatter($vars) {
       $service_url = $wms_url . '?request=GetCapabilities&service=WMS';
       // If the initial request was sent without the correct endpoint.
       if (!isset($request->data) || empty($request->data) || preg_match('/The request not allowed/', $request->data)) {
-        $request = drupal_http_request($service_url, array('timeout' => 10));
+        $request = drupal_http_request($service_url, array('timeout' => RECLINE_REQUEST_TIMEOUT_GET));
       }
       if ($request->code != 200) {
         $output['preview'] = recline_preview_unavailable();
@@ -273,7 +300,7 @@ function recline_preview_unavailable() {
  * Prettify json.
  */
 function recline_preview_json($url) {
-  $response = drupal_http_request($url, array('timeout' => 5));
+  $response = drupal_http_request($url, array('timeout' => RECLINE_REQUEST_TIMEOUT_GET));
   if ($response->code == '200') {
     $data = $response->data;
   }
@@ -312,7 +339,7 @@ function recline_preview_json($url) {
  * Prettify xml.
  */
 function recline_prettify_xml($url) {
-  $response = drupal_http_request($url, array('timeout' => 5));
+  $response = drupal_http_request($url, array('timeout' => RECLINE_REQUEST_TIMEOUT_GET));
   if ($response->code == '200') {
     $data = recline_replace_lt_gt($response->data);
   }

@@ -1,5 +1,6 @@
 7.x-1.x
---------
+-------
+- Improved handling of missing remote zip files during resource preview generation.
 - Improved check used to determine if bootstrap is available.
 - Add cache support for recline previews.
 
