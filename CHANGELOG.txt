@@ -1,8 +1,10 @@
+7.x-1.x
+-------
+- Improved handling of missing remote zip files during resource preview generation.
+
 7.x-1.12.x
 ----------
 - Make recline previews work on subdir paths.
-- Graceful handeling of missing remote zip files during resource preview
-  generation.
 
 7.x-1.11 2016-02-03
 ------------------
