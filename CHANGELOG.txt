@@ -2,7 +2,8 @@
 -------
 - Improved handling of missing remote zip files during resource preview generation.
 - Improved check used to determine if bootstrap is available.
-- Add cache support for recline previews.
+- Added cache support for recline previews.
+- Added delimiter configuration on chart settings. 
 
 7.x-1.12.x
 ----------

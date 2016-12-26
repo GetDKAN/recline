@@ -150,7 +150,8 @@
         case 'csv':
           datasetOptions = {
             backend: 'csv',
-            url: file
+            url: file,
+            delimiter: delimiter
           };
           break;
         case 'ckan':
