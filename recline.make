@@ -5,9 +5,6 @@ api = 2
 libraries[recline][type] = libraries
 libraries[recline][download][type] = git
 libraries[recline][download][url] = "https://github.com/NuCivic/recline.js.git"
-# This should be pointing to the HEAD of the dkan_integration branch at the time of
-# the release. The commit should have all the branches for PR's that we send against
-# the okfn repo and the builded version matching the code(use ./make cat to build).
 libraries[recline][download][revision] = "aa5eeac080099584792e70dff839f0e85ae7380a"
 
 # LODASH
