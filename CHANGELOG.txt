@@ -1,5 +1,5 @@
-7.x-1.12.x
-----------
+7.x-1.12.13 2017-01-04
+----------------------
 - Make recline previews work on subdir paths.
 - Improved check used to determine if bootstrap is available.
 
