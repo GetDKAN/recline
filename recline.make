@@ -47,7 +47,7 @@ libraries[moment][download][revision] = "78a53b8cb53e967c6dac2e7325e18da2a472fc2
 libraries[leaflet][type] = libraries
 libraries[leaflet][download][type] = git
 libraries[leaflet][download][url] = "https://github.com/Leaflet/Leaflet.git"
-libraries[leaflet][download][revision] = "8a5fdfc6e3db2807b8f0dd617474e4ab2949142b"
+libraries[leaflet][download][revision] = "4bbb16c1c425f74d87e0b23dc1be312eb8e2c6f1"
 
 # FLOT
 libraries[flot][type] = libraries
