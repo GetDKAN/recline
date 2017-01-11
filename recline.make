@@ -74,7 +74,7 @@ libraries[leaflet_markercluster][type] = libraries
 libraries[leaflet_markercluster][download][type] = git
 libraries[leaflet_markercluster][download][url] = "https://github.com/Leaflet/Leaflet.markercluster.git"
 libraries[leaflet_markercluster][directory_name] = leaflet_markercluster
-libraries[leaflet_markercluster][download][revision] = "c5864dbfca9e71c86ac61b432862cc77f8fd8e68"
+libraries[leaflet_markercluster][download][revision] = "eb922a3646d2e1ef9ed9de99e20200709f1f9bb5"
 
 # XLS BACKEND
 libraries[xls][type] = libraries
