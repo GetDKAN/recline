@@ -399,7 +399,7 @@ function recline_preview_geojson_leaflet($url) {
     return ;
   }
   libraries_load('leaflet_markercluster');
-  $leaflet_imgs = libraries_get_path('recline') . '/vendor/leaflet/1.0.2/images';
+  $leaflet_imgs = libraries_get_path('recline') . '/vendor/leaflet/1.0.2/images/';
   drupal_add_js('L.Icon.Default.imagePath = "/' . $leaflet_imgs . '"', 'inline');
   drupal_add_library('leaflet_widget', 'leaflet_core');
   $output = "var dataExtent = " . $geojson;
@@ -554,7 +554,7 @@ function recline_preview_multiview($variables) {
   // Update the leaflet library and test if this bug goes away.
   // That will involve a lot of QA but we have to do it a some point.
   if ($recline) {
-    $leaflet_imgs = $recline['library path'] . '/vendor/leaflet/1.0.2/images';
+    $leaflet_imgs = $recline['library path'] . '/vendor/leaflet/1.0.2/images/';
     drupal_add_js('L.Icon.Default.imagePath = "/' . $leaflet_imgs . '"', 'inline');
   }
 
