@@ -46,8 +46,6 @@ libraries[moment][download][revision] = "78a53b8cb53e967c6dac2e7325e18da2a472fc2
 # LEAFLET
 libraries[leaflet][type] = libraries
 libraries[leaflet][download][type] = git
-# As soon as this PR got merge https://github.com/Leaflet/Leaflet/issues/5258
-# we can point back to Leaflet repo again.
 libraries[leaflet][download][url] = "https://github.com/NuCivic/Leaflet.git"
 libraries[leaflet][download][revision] = "63a45c93b986db827d35d81cd9438f92f1ca0472"
 
@@ -76,7 +74,7 @@ libraries[leaflet_markercluster][type] = libraries
 libraries[leaflet_markercluster][download][type] = git
 libraries[leaflet_markercluster][download][url] = "https://github.com/Leaflet/Leaflet.markercluster.git"
 libraries[leaflet_markercluster][directory_name] = leaflet_markercluster
-libraries[leaflet_markercluster][download][revision] = "c5864dbfca9e71c86ac61b432862cc77f8fd8e68"
+libraries[leaflet_markercluster][download][revision] = "eb922a3646d2e1ef9ed9de99e20200709f1f9bb5"
 
 # XLS BACKEND
 libraries[xls][type] = libraries
