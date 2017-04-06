@@ -237,7 +237,7 @@ function recline_preview_wms($url, $titles, $images, $north, $east, $south, $wes
   $items = array();
   foreach ($titles as $title) {
     if (isset($images[$title])) {
-      $title = t('<img src="@image" alt="@title legend item"/> @title'), array('@title' => $title, '@image' => $images[$title]);
+      $title = t('<img src="@image" alt="@title legend item"/> @title', array('@title' => $title, '@image' => $images[$title]));
     }
     $items[] = array(
       'data' => $title,
