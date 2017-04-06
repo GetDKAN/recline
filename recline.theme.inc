@@ -567,7 +567,7 @@ function recline_preview_multiview($variables) {
 
   $output['data_explorer'] = array(
     '#type' => 'markup',
-    '#markup' => '<span class="data-explorer"></span>',
+    '#markup' => '<div class="data-explorer-help"><i class="fa fa-info-circle" aria-hidden="true"></i> <strong>Data Preview:</strong> Note that by default the preview only displays up to 100 records. Use the pager to flip through more records or adjust the start and end fields to display the number of records you wish to see.</div><span class="data-explorer"></span>',
   );
   return $output;
 }
