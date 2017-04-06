@@ -411,7 +411,7 @@ function recline_preview_arcgis_feature($url) {
       'lon' => $lon,
     ),
     'setting',
-  );
+  ));
   drupal_add_js($module_path . '/restdataview.js');
   $output = array(
     'map' => array(
