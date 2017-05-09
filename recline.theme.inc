@@ -107,6 +107,7 @@ function theme_recline_default_formatter($vars) {
       break;
 
     case 'csv':
+    case 'tsv':
     case 'xls':
       $output['preview'] = recline_preview_multiview($vars);
       break;
