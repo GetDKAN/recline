@@ -110,6 +110,14 @@ function theme_recline_default_formatter($vars) {
       }
     }
   }
+  
+  // Displaying previews breaks solr indexing.
+  // @TODO: Create a new display mode from search indexing and remove.
+  if (isset($vars['item']['entity']->search_api_language)) {
+    $output['preview'] = recline_preview_unavailable();
+    return drupal_render($output);
+  }
+
   switch ($type) {
     case 'json':
       $output['preview'] = recline_preview_json($url);
