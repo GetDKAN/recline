@@ -34,7 +34,8 @@ define('RECLINE_REQUEST_TIMEOUT_GET', 10);
  * @ingroup themeable
  */
 function theme_recline_default_formatter($vars) {
-  $type = NULL;
+  $type = null;
+  $api = FALSE;
 
   // Embedded view doesn't use html.tpl.php template
   // so we need to add bootstrap by hand.
@@ -61,6 +62,7 @@ function theme_recline_default_formatter($vars) {
   }
 
   if (isset($vars['item']['url'])) {
+    $api = TRUE;
     $url = $vars['item']['url'];
   }
   elseif (isset($vars['item']['uri'])) {
@@ -73,6 +75,12 @@ function theme_recline_default_formatter($vars) {
   $file['filename'] = isset($file['filename']) ? $file['filename'] : $url;
   $description = isset($file['description']) ? $file['description'] : '';
   $output = recline_build_icon($url, $type, $file['filename'], $file['filemime'], $file['filesize'], $description);
+
+  //If is a API then return without preview.
+  if ($api) {
+    $output['preview'] = recline_format_link_api($url);
+    return drupal_render($output);
+  }
 
   if (!$type) {
     $request = drupal_http_request($url, array('timeout' => RECLINE_REQUEST_TIMEOUT_HEAD, 'method' => 'HEAD'));
@@ -101,6 +109,14 @@ function theme_recline_default_formatter($vars) {
       }
     }
   }
+  
+  // Displaying previews breaks solr indexing.
+  // @TODO: Create a new display mode from search indexing and remove.
+  if (isset($vars['item']['entity']->search_api_language)) {
+    $output['preview'] = recline_preview_unavailable();
+    return drupal_render($output);
+  }
+
   switch ($type) {
     case 'json':
       $output['preview'] = recline_preview_json($url);
