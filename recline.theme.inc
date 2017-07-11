@@ -123,6 +123,8 @@ function theme_recline_default_formatter($vars) {
       break;
 
     case 'csv':
+    case 'txt':
+    case 'tsv':
     case 'xls':
       $output['preview'] = recline_preview_multiview($vars);
       break;
@@ -588,6 +590,10 @@ function recline_preview_multiview($variables) {
     $graph = !$is_remote && !$show_all ? (int) $item['graph'] : 1;
     $map = !$is_remote && !$show_all ? (int) $item['map'] : 1;
     $embed = !empty($item['embed']) ? (int) $item['embed'] : 0;
+
+    if (pathinfo($item['uri'], PATHINFO_EXTENSION) === 'tab') {
+      $item['filemime'] = 'text/tab-separated-values';
+    }
 
     $settings['recline'] = array(
       'file' => $file_path,
