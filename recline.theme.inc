@@ -35,7 +35,8 @@ define('RECLINE_REQUEST_TIMEOUT_GET', 10);
  */
 function theme_recline_default_formatter(array $vars) {
   $type = NULL;
-
+  $api = FALSE;
+  
   // Embedded view doesn't use html.tpl.php template
   // so we need to add bootstrap by hand.
   if (recline_embedded()) {
@@ -61,6 +62,7 @@ function theme_recline_default_formatter(array $vars) {
   }
 
   if (isset($vars['item']['url'])) {
+    $api = TRUE;
     $url = $vars['item']['url'];
   }
   elseif (isset($vars['item']['uri'])) {
@@ -73,6 +75,12 @@ function theme_recline_default_formatter(array $vars) {
   $file['filename'] = isset($file['filename']) ? $file['filename'] : $url;
   $description = isset($file['description']) ? $file['description'] : '';
   $output = recline_build_icon($url, $type, $file['filename'], $file['filemime'], $file['filesize'], $description);
+
+  //If is a API then return without preview.
+  if ($api) {
+    $output['preview'] = recline_format_link_api($url);
+    return drupal_render($output);
+  }
 
   if (!$type) {
     $request = drupal_http_request($url, array('timeout' => RECLINE_REQUEST_TIMEOUT_HEAD, 'method' => 'HEAD'));
@@ -101,12 +109,22 @@ function theme_recline_default_formatter(array $vars) {
       }
     }
   }
+  
+  // Displaying previews breaks solr indexing.
+  // @TODO: Create a new display mode from search indexing and remove.
+  if (isset($vars['item']['entity']->search_api_language)) {
+    $output['preview'] = recline_preview_unavailable();
+    return drupal_render($output);
+  }
+
   switch ($type) {
     case 'json':
       $output['preview'] = recline_preview_json($url);
       break;
 
     case 'csv':
+    case 'txt':
+    case 'tsv':
     case 'xls':
       $output['preview'] = recline_preview_multiview($vars);
       break;
@@ -567,6 +585,10 @@ function recline_preview_multiview($variables) {
     $graph = !$is_remote && !$show_all ? (int) $item['graph'] : 1;
     $map = !$is_remote && !$show_all ? (int) $item['map'] : 1;
     $embed = !empty($item['embed']) ? (int) $item['embed'] : 0;
+
+    if (pathinfo($item['uri'], PATHINFO_EXTENSION) === 'tab') {
+      $item['filemime'] = 'text/tab-separated-values';
+    }
 
     $settings['recline'] = array(
       'file' => $file_path,
