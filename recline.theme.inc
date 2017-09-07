@@ -109,7 +109,7 @@ function theme_recline_default_formatter($vars) {
       }
     }
   }
-  
+
   // Displaying previews breaks solr indexing.
   // @TODO: Create a new display mode from search indexing and remove.
   if (isset($vars['item']['entity']->search_api_language)) {
@@ -416,7 +416,7 @@ function recline_replace_lt_gt($data) {
  */
 function recline_preview_arcgis_feature($url) {
   drupal_add_js('https://cdn.jsdelivr.net/leaflet/1.0.2/leaflet.js', 'external');
-  drupal_add_js('https:////cdn.jsdelivr.net/leaflet.esri/1.0.0/esri-leaflet.js', 'external');
+  drupal_add_js('https:////cdn.jsdelivr.net/leaflet.esri/2.0.0/esri-leaflet.js', 'external');
   drupal_add_css('https://cdn.jsdelivr.net/leaflet/1.0.2/leaflet.css', 'external');
   drupal_add_css('body { margin:0; padding:0; } #rest-map { position: relative; height: 500px; width: 100%;}', 'inline');
   $lat = variable_get('recline_default_lat', "38");
@@ -427,9 +427,8 @@ function recline_preview_arcgis_feature($url) {
       'url' => $url,
       'lat' => $lat,
       'lon' => $lon,
-    ),
-    'setting',
-  ));
+    )
+    ),'setting');
   drupal_add_js($module_path . '/restdataview.js');
   $output = array(
     'map' => array(
