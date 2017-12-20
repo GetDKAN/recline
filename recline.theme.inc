@@ -71,14 +71,24 @@ function theme_recline_default_formatter($vars) {
   elseif (isset($vars['item']['fid'])) {
     $url = file_create_url($file['uri']);
   }
+  
+  switch ($type) {
+    case 'html':
+      $link_text = t('Web Page');
+      break;
+    case 'api':
+      $link_text = t('API');
+      break;
+    default:
+      $link_text = '';
+  }
 
-  $file['filename'] = isset($file['filename']) ? $file['filename'] : $url;
+  $file['filename'] = !empty($file['filename']) ? $file['filename'] : $link_text;
   $description = isset($file['description']) ? $file['description'] : '';
   $output = recline_build_icon($url, $type, $file['filename'], $file['filemime'], $file['filesize'], $description);
 
   //If is a API then return without preview.
   if ($api) {
-    $output['preview'] = recline_format_link_api($url);
     return drupal_render($output);
   }
 
@@ -178,7 +188,6 @@ function theme_recline_default_formatter($vars) {
       break;
 
     case 'html':
-      $output['preview'] = recline_format_link_api($url);
       break;
 
     case 'png':
@@ -197,7 +206,6 @@ function theme_recline_default_formatter($vars) {
       break;
 
     case 'pdf':
-      $output['preview'] = recline_format_link_api($url);
       break;
 
     case 'wms':
@@ -298,25 +306,6 @@ function recline_format_image($url) {
   return array(
     '#type' => 'markup',
     '#markup' => '<div  id="recline-image-preview"><img src="' . $url . '" alt="image preview"/></div>',
-  );
-}
-
-/**
- * Builds output for a link of an api.
- */
-function recline_format_link_api($url) {
-  return array(
-    'iframe' => array(
-      '#type' => 'html_tag',
-      '#tag' => 'iframe',
-      '#attributes' => array(
-        'src' => $url,
-        'height' => 600,
-        'width' => 900,
-        'style' => '',
-      ),
-      '#value' => '',
-    ),
   );
 }
 
