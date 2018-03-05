@@ -6,7 +6,6 @@
     "require": {
         "composer/installers": "~1.0",
         "library/recline": "1.0",
-        "library/lodash": "1.0",
         "library/backbone": "1.0",
         "library/csv": "1.0",
         "library/slickgrid": "1.0",
@@ -19,13 +18,15 @@
         "library/leaflet_markercluster": "1.0",
         "library/xls": "1.0",
         "library/jsxlsx": "1.0",
-        "library/jsonview": "1.0"
+        "library/jsonview": "1.0",
+        "fxp/composer-asset-plugin": "^1.4",
+        "npm-asset/lodash": "2.4.1"
     },
     "repositories": {
         "libraries/recline": {
             "type": "package",
             "package": {
-                "name": "getdkan/recline.js",
+                "name": "library/recline",
                 "version": "1.0",
                 "type": "drupal-library",
                 "source": {
@@ -45,19 +46,6 @@
                     "url": "https://github.com/lodash/lodash.git",
                     "type": "git",
                     "reference": "e21e993729861a2bc1d01c858cfabce7a27d2861"
-                }
-            }
-        },
-        "libraries/backbone": {
-            "type": "package",
-            "package": {
-                "name": "library/backbone",
-                "version": "1.0",
-                "type": "drupal-library",
-                "source": {
-                    "url": "https://github.com/jashkenas/backbone.git",
-                    "type": "git",
-                    "reference": "e109f6d3e7a366f933f1f34405ca97effecae6c5"
                 }
             }
         },
