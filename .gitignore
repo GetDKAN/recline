@@ -1,2 +1,4 @@
 .floo
 .flooignore
+vendor
+libraries
