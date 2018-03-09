@@ -78,8 +78,10 @@ function theme_recline_default_formatter($vars) {
 
   //If is a API then return without preview.
   if ($api) {
-    $output['preview'] = recline_format_link_api($url);
-    return drupal_render($output);
+    // $output['preview'] = recline_format_link_api($url);
+    // return drupal_render($output);
+    //dont know why the two lines of codes above cannot render external resources.
+    recline_preview_json($url);
   }
 
   if (!$type) {
@@ -336,6 +338,16 @@ function recline_preview_unavailable() {
  * Prettify json.
  */
 function recline_preview_json($url) {
+  $parsed_external_url = parse_external_url($url);
+  if ($parsed_external_url['class'] == 'internal-link'){
+    $parsed_url = parse_url($url);
+    $replaced = str_replace('%20', ' ', $parsed_url);
+    $explode_url = explode('/', $replaced['path']);
+    $files = file_load_multiple([], ['uri' => 'private://' . $explode_url[3]]);
+    $fid = reset($files)->fid;
+    $f = file_load($fid);
+    $data = file_get_contents($f->uri);
+  }else{
   $response = drupal_http_request($url, array('timeout' => RECLINE_REQUEST_TIMEOUT_GET));
   if ($response->code == '200') {
     $data = $response->data;
@@ -343,6 +355,7 @@ function recline_preview_json($url) {
   else {
     return recline_preview_unavailable();
   }
+}
   $decoded = drupal_json_decode($data);
 
   // When a json is a geojson file then return a geojson preview
@@ -443,6 +456,16 @@ function recline_preview_arcgis_feature($url) {
  * Returns output for a geojson file using leaflet library.
  */
 function recline_preview_geojson_leaflet($url) {
+  $parsed_external_url = parse_external_url($url);
+  if ($parsed_external_url['class'] == 'internal-link'){
+    $parsed_url = parse_url($url);
+    $replaced = str_replace('%20', ' ', $parsed_url);
+    $explode_url = explode('/', $replaced['path']);
+    $files = file_load_multiple([], ['uri' => 'private://' . $explode_url[3]]);
+    $fid = reset($files)->fid;
+    $f = file_load($fid);
+    $geojson = file_get_contents($f->uri);
+  }else{
   $response = drupal_http_request($url);
   if ($response->code == '200') {
     $geojson = $response->data;
@@ -450,6 +473,7 @@ function recline_preview_geojson_leaflet($url) {
   else {
     return;
   }
+}
   libraries_load('leaflet_markercluster');
   $leaflet_imgs = libraries_get_path('recline') . '/vendor/leaflet/1.0.2/images/';
   drupal_add_js('L.Icon.Default.imagePath = "/' . $leaflet_imgs . '"', 'inline');
@@ -659,5 +683,36 @@ function theme_recline_widget($variables) {
   $output .= drupal_render_children($element);
   $output .= '</div>';
 
+  return $output;
+}
+
+/**
+ * check if the url is external or internal url
+ */
+function parse_external_url($url = '', $internal_class = 'internal-link', $external_class = 'external-link') {
+  if (empty($url)) {
+    return FALSE;
+  }
+  $link_url = parse_url($url);
+  $home_url = parse_url($_SERVER['HTTP_HOST']);
+  if (empty($link_url['host'])) {
+    $target = '_self';
+    $class = $internal_class;
+
+  }
+  elseif ($link_url['host'] == $home_url['host']) {
+    $target = '_self';
+    $class = $internal_class;
+
+  }
+  else {
+    $target = '_blank';
+    $class = $external_class;
+  }
+  $output = [
+    'class' => $class,
+    'target' => $target,
+    'url' => $url,
+  ];
   return $output;
 }
