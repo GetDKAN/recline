@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "80adaba02450d611cafb09d6d4b26fb1",
+    "content-hash": "aa9e3dd90c2fcfa451dcf209c037a99d",
     "packages": [
         {
             "name": "bower-asset/backbone",
@@ -81,17 +81,122 @@
             "time": "2017-05-03T14:50:52+00:00"
         },
         {
-            "name": "bower-asset/leaflet",
-            "version": "v1.3.1",
+            "name": "bower-asset/jquery",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Leaflet/Leaflet.git",
-                "reference": "ba6f97fff8647e724e4dfe66d2ed7da11f908989"
+                "url": "https://github.com/jquery/jquery-dist.git",
+                "reference": "9e8ec3d10fad04748176144f108d7355662ae75e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Leaflet/Leaflet/zipball/ba6f97fff8647e724e4dfe66d2ed7da11f908989",
-                "reference": "ba6f97fff8647e724e4dfe66d2ed7da11f908989",
+                "url": "https://api.github.com/repos/jquery/jquery-dist/zipball/9e8ec3d10fad04748176144f108d7355662ae75e",
+                "reference": "9e8ec3d10fad04748176144f108d7355662ae75e",
+                "shasum": ""
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": "dist/jquery.js",
+                "bower-asset-ignore": [
+                    "package.json"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "keywords": [
+                "browser",
+                "javascript",
+                "jquery",
+                "library"
+            ],
+            "time": "2018-01-20T17:26:57+00:00"
+        },
+        {
+            "name": "bower-asset/jquery-jsonview",
+            "version": "v1.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yesmeck/jquery-jsonview.git",
+                "reference": "91fa8515ff3206009f7469840ca2f7f66d774a1f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yesmeck/jquery-jsonview/zipball/91fa8515ff3206009f7469840ca2f7f66d774a1f",
+                "reference": "91fa8515ff3206009f7469840ca2f7f66d774a1f",
+                "shasum": ""
+            },
+            "require": {
+                "bower-asset/jquery": "*"
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": "dist/jquery.jsonview.js",
+                "bower-asset-ignore": [
+                    "node_modules",
+                    "bower_components",
+                    "test",
+                    "tests"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "jQuery plugin for display pretty JSON.",
+            "keywords": [
+                "json"
+            ],
+            "time": "2015-11-09T08:21:04+00:00"
+        },
+        {
+            "name": "bower-asset/js-xlsx",
+            "version": "v0.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SheetJS/js-xlsx.git",
+                "reference": "53f7f6d9446ccd680c9b13992d6dcdccde49a8f6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SheetJS/js-xlsx/zipball/53f7f6d9446ccd680c9b13992d6dcdccde49a8f6",
+                "reference": "53f7f6d9446ccd680c9b13992d6dcdccde49a8f6",
+                "shasum": ""
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": "dist/xlsx.js",
+                "bower-asset-ignore": [
+                    "bin",
+                    "bits",
+                    "misc",
+                    "**/.*"
+                ]
+            },
+            "keywords": [
+                "excel",
+                "js-xls",
+                "js-xlsx",
+                "ods",
+                "xls",
+                "xlsb",
+                "xlsm",
+                "xlsx",
+                "xml"
+            ],
+            "time": "2015-04-03T14:34:42+00:00"
+        },
+        {
+            "name": "bower-asset/leaflet",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Leaflet/Leaflet.git",
+                "reference": "ed36a04aefd12cb92c78074fe63a8e460db1d464"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Leaflet/Leaflet/zipball/ed36a04aefd12cb92c78074fe63a8e460db1d464",
+                "reference": "ed36a04aefd12cb92c78074fe63a8e460db1d464",
                 "shasum": ""
             },
             "type": "bower-asset-library",
@@ -114,7 +219,7 @@
                 "BSD-2-Clause"
             ],
             "description": "JavaScript library for mobile-friendly interactive maps",
-            "time": "2018-01-18T12:16:07+00:00"
+            "time": "2017-01-23T11:10:35+00:00"
         },
         {
             "name": "bower-asset/leaflet.markercluster",
@@ -445,16 +550,6 @@
             "time": "2017-10-20T06:53:56+00:00"
         },
         {
-            "name": "library/leaflet",
-            "version": "1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/NuCivic/Leaflet.git",
-                "reference": "v1.0.2-alt-marker-shadow-5258"
-            },
-            "type": "drupal-library"
-        },
-        {
             "name": "library/recline",
             "version": "1.0",
             "source": {
@@ -625,55 +720,82 @@
             "time": "2013-05-22T12:17:57+00:00"
         },
         {
-            "name": "npm-asset/jquery-jsonview",
-            "version": "1.2.3",
+            "name": "npm-asset/lodash",
+            "version": "2.4.1",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/jquery-jsonview/-/jquery-jsonview-1.2.3.tgz",
+                "url": "https://registry.npmjs.org/lodash/-/lodash-2.4.1.tgz",
                 "reference": null,
-                "shasum": "6a24ce73357368e00ee32fb605950a4083ad6b7a"
-            },
-            "require-dev": {
-                "npm-asset/coffee-script": ">=1.7.1,<2.0.0",
-                "npm-asset/gulp": ">=3.8.11,<4.0.0",
-                "npm-asset/gulp-coffee": ">=1.4.1,<2.0.0",
-                "npm-asset/gulp-concat": ">=2.2.0,<3.0.0",
-                "npm-asset/gulp-mocha": ">=0.4.1,<0.5.0",
-                "npm-asset/gulp-preprocess": ">=1.0.1,<2.0.0",
-                "npm-asset/gulp-ruby-sass": ">=0.4.0,<0.5.0",
-                "npm-asset/gulp-util": ">=2.2.14,<3.0.0",
-                "npm-asset/mocha": ">=1.18.2,<2.0.0"
+                "shasum": "5b7723034dda4d262e5a46fb2c58d7cc22f71420"
             },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
-                    "url": "https://github.com/yesmeck/jquery-jsonview/issues"
+                    "url": "https://github.com/lodash/lodash/issues"
                 },
-                "npm-asset-main": "dist/jquery.jsonview.js",
+                "npm-asset-files": [
+                    "LICENSE.txt",
+                    "lodash.js",
+                    "dist/lodash.js",
+                    "dist/lodash.min.js",
+                    "dist/lodash.compat.js",
+                    "dist/lodash.compat.min.js",
+                    "dist/lodash.underscore.js",
+                    "dist/lodash.underscore.min.js"
+                ],
+                "npm-asset-main": "dist/lodash.js",
                 "npm-asset-directories": [],
                 "npm-asset-repository": {
                     "type": "git",
-                    "url": "git://github.com/yesmeck/jquery-jsonview.git"
+                    "url": "https://github.com/lodash/lodash.git"
                 },
-                "npm-asset-scripts": {
-                    "test": "echo \"Error: no test specified\" && exit 1"
-                }
+                "npm-asset-engines": [
+                    "node",
+                    "rhino"
+                ]
             },
             "license": [
                 "MIT"
             ],
             "authors": [
                 {
-                    "name": "Meck",
-                    "email": "yesmeck@gmail.com"
+                    "name": "John-David Dalton",
+                    "email": "john.david.dalton@gmail.com",
+                    "url": "http://allyoucanleet.com/"
+                },
+                {
+                    "name": "John-David Dalton",
+                    "email": "john.david.dalton@gmail.com",
+                    "url": "http://allyoucanleet.com/"
+                },
+                {
+                    "name": "Blaine Bublitz",
+                    "email": "blaine@iceddev.com",
+                    "url": "http://www.iceddev.com/"
+                },
+                {
+                    "name": "Kit Cambridge",
+                    "email": "github@kitcambridge.be",
+                    "url": "http://kitcambridge.be/"
+                },
+                {
+                    "name": "Mathias Bynens",
+                    "email": "mathias@qiwi.be",
+                    "url": "http://mathiasbynens.be/"
                 }
             ],
-            "description": "jQuery plugin for display pretty JSON.",
-            "homepage": "https://github.com/yesmeck/jquery-jsonview",
+            "description": "A utility library delivering consistency, customization, performance, & extras.",
+            "homepage": "http://lodash.com/",
             "keywords": [
-                "json"
+                "amd",
+                "browser",
+                "client",
+                "customize",
+                "functional",
+                "server",
+                "util"
             ],
-            "time": "2015-11-09T08:21:28+00:00"
+            "time": "2013-12-03T16:51:12+00:00"
         }
     ],
     "packages-dev": [],

@@ -8,7 +8,6 @@
         "fxp/composer-asset-plugin": "^1.4",
         "mnsami/composer-custom-directory-installer": "^1.1",
         "library/recline": "1.0",
-        "library/leaflet": "1.0",
         "library/recline_deeplink": "1.0",
         "library/xls": "1.0",
         "npm-asset/csv.js": "^1.0",
@@ -18,7 +17,14 @@
         "npm-asset/flot": "0.8.1",
         "bower-asset/deep-diff": "0.3.8",
         "bower-asset/leaflet.markercluster": "1.0.0",
-        "npm-asset/jquery-jsonview": "1.2.3"
+        "bower-asset/leaflet": "1.0.3",
+        "npm-asset/lodash": "2.4.1",
+        "bower-asset/js-xlsx": "0.8.0",
+        "bower-asset/jquery-jsonview": "1.2.3"
+    },
+    "provide": {
+        "bower-asset/jquery": "*",
+        "npm-asset/jquery": "*"
     },
     "repositories": {
         "libraries/recline": {
