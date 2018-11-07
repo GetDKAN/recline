@@ -5,6 +5,10 @@
  * Recline theme functions.
  */
 
+use Dkan\Datastore\Manager\Factory;
+use Dkan\Datastore\Resource;
+use Dkan\Datastore\Manager\ManagerInterface;
+
 /**
  * File size limit for remote zip files preview.
  *
@@ -537,12 +541,17 @@ function recline_preview_multiview($variables) {
   $node = $item['entity'];
   $embed_markup = theme('recline_embed_button', array('node' => $node));
   // See if datastore is loaded, if so, prepare recline to view from it.
-  if (module_exists('dkan_datastore_api') && module_exists('feeds_flatstore_processor') && function_exists('dkan_datastore_api_get_feeds_source')) {
-    $source_id = dkan_datastore_api_get_feeds_source($node->nid);
-    if ($table = feeds_flatstore_processor_table_name($source_id, $node->nid)) {
-      if (db_table_exists($table)) {
-        $datastoreStatus = $table;
+  if (module_exists('dkan_datastore_api')) {
+    try {
+      /* @var  $manager ManagerInterface */
+      $manager = (new Factory(Resource::createFromDrupalNode($node)))->get();
+      $t = $manager->getTableName();
+      if (db_table_exists($t)) {
+        $datastoreStatus = $t;
       }
+    }
+    catch (\Exception $e) {
+      $datastoreStatus = FALSE;
     }
   }
 
