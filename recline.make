@@ -37,7 +37,7 @@ libraries:
     download:
       type: git
       url: 'https://github.com/moment/moment.git'
-      revision: 78a53b8cb53e967c6dac2e7325e18da2a472fc2d
+      tag: 2.11.2
   leaflet:
     download:
       type: git
