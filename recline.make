@@ -1,7 +1,5 @@
 core: 7.x
 api: '2'
-  recline:
-    type: libraries
 libraries:
   recline:
     download:
